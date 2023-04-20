@@ -6,7 +6,7 @@ pipeline {
         AWS_ECR_CREDENTIAL_ID = 'ecr-user'
         AWS_S3_CREDENTIAL_ID = 's3-credential'
         VM_ENTER_CREDENTIAL_ID = 'enter-vm-credential' // elice VM에 접속하기 위한 credential
-        OSONDOSON_VM_CREDENTIAL_ID = 'team2-vm-credential' // VM 자체에 대한 credential (사용자 이름, 패스워드)
+        TEAM2_VM_CREDENTIAL_ID = 'team2-vm-credential' // VM 자체에 대한 credential (사용자 이름, 패스워드)
 
         /* AWS Info */
         ACCOUNT_ID = '014276069644'
@@ -17,10 +17,10 @@ pipeline {
         BUCKET_NAME = 'eeum-config-bucket'
 
         /* VM Info */
-        TARGET_HOST = '34.64.144.19'
+        TARGET_HOST = '34.22.81.164'
 
         /* Container Info */
-        CONTAINER_NAME = 'osondoson-backend'
+        CONTAINER_NAME = 'eeum-backend'
         CONTAINER_PORT = 3500
     }
 
@@ -58,5 +58,28 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to VM') {
+            steps {
+                script {
+                    sshagent(credentials: ["${VM_ENTER_CREDENTIAL_ID}"]) {
+                        withCredentials([usernamePassword(credentialsId: "${TEAM2_VM_CREDENTIAL_ID}", passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ${USERNAME}@${TARGET_HOST} '
+                                    sudo chmod 777 /var/run/docker.sock
+                                    aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/
+                                    docker pull ${ECR_REPO}:latest
+                                    if [[ \$(docker ps -a --filter name=${CONTAINER_NAME} --format "{{.Names}}") == ${CONTAINER_NAME} ]]; then
+                                        docker stop ${CONTAINER_NAME} && docker rm ${CONTAINER_NAME}
+                                    fi
+                                    docker run -d -p ${CONTAINER_PORT}:${CONTAINER_PORT} --name ${CONTAINER_NAME} ${ECR_REPO}:latest
+                                '
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }
