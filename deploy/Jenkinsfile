@@ -47,5 +47,16 @@ pipeline {
                 sh "docker build -t ${ECR_REPO}:latest ."
             }
         }
+
+        stage('Push to ECR') {
+            steps {
+                script {
+                    // docker push
+                    docker.withRegistry("https://${ECR_REPO}", "ecr:${AWS_REGION}:${AWS_ECR_CREDENTIAL_ID}") {
+                        docker.image("${ECR_REPO}:latest").push()
+                    }
+                }
+            }
+        }
     }
 }
