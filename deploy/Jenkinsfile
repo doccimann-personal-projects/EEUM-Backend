@@ -7,7 +7,7 @@ pipeline {
         AWS_S3_CREDENTIAL_ID = 's3-credential'
         VM_ENTER_CREDENTIAL_ID = 'vm-ssh-credential' // elice VM에 접속하기 위한 credential
 
-        /* AWS Info */
+        /* AWS Infos */
         ACCOUNT_ID = '014276069644'
         AWS_REGION = 'ap-northeast-2'
         ECR_REPO = '014276069644.dkr.ecr.ap-northeast-2.amazonaws.com/eeum-backend'
