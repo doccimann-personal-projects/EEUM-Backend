@@ -62,9 +62,24 @@ pipeline {
         stage('Deploy to VM') {
             steps {
                 script {
+                    // sshagent(credentials: ["${VM_ENTER_CREDENTIAL_ID}"]) {
+                    //     withCredentials([usernamePassword(credentialsId: "${TEAM2_VM_CREDENTIAL_ID}", passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                    //         sh """
+                    //             ssh -o StrictHostKeyChecking=no ${USERNAME}@${TARGET_HOST} '
+                    //                 sudo chmod 777 /var/run/docker.sock
+                    //                 aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/
+                    //                 docker pull ${ECR_REPO}:latest
+                    //                 if [[ \$(docker ps -a --filter name=${CONTAINER_NAME} --format "{{.Names}}") == ${CONTAINER_NAME} ]]; then
+                    //                     docker stop ${CONTAINER_NAME} && docker rm ${CONTAINER_NAME}
+                    //                 fi
+                    //                 docker run -d -p ${CONTAINER_PORT}:${CONTAINER_PORT} --name ${CONTAINER_NAME} ${ECR_REPO}:latest
+                    //             '
+                    //         """
+                    //     }
+                    // }
+
                     sshagent(credentials: ["${VM_ENTER_CREDENTIAL_ID}"]) {
-                        withCredentials([usernamePassword(credentialsId: "${TEAM2_VM_CREDENTIAL_ID}", passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-                            sh """
+                        sh """
                                 ssh -o StrictHostKeyChecking=no ${USERNAME}@${TARGET_HOST} '
                                     sudo chmod 777 /var/run/docker.sock
                                     aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/
@@ -75,11 +90,9 @@ pipeline {
                                     docker run -d -p ${CONTAINER_PORT}:${CONTAINER_PORT} --name ${CONTAINER_NAME} ${ECR_REPO}:latest
                                 '
                             """
-                        }
                     }
                 }
             }
         }
-
     }
 }
