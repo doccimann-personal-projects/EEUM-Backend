@@ -31,12 +31,14 @@ pipeline {
         }
 
         stage('Append .yml files') {
-            def bucketName = 'eeum-config-bucket'
-            def envFileDir = "${env.WORKSPACE}"
+            steps {
+                def bucketName = 'eeum-config-bucket'
+                def envFileDir = "${env.WORKSPACE}"
 
-            withAWS(region: "${AWS_REGION}", credentials: "${AWS_S3_CREDENTIAL_ID}") {
-                // S3로부터 .env 파일 다운로드
-                s3Download(file: "${envFileDir}/.env", bucket: "${bucketName}", path: 'backend/.env', force: true)
+                withAWS(region: "${AWS_REGION}", credentials: "${AWS_S3_CREDENTIAL_ID}") {
+                    // S3로부터 .env 파일 다운로드
+                    s3Download(file: "${envFileDir}/.env", bucket: "${bucketName}", path: 'backend/.env', force: true)
+                }
             }
         }
     }
