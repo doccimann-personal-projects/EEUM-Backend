@@ -11,7 +11,7 @@ pipeline {
         /* AWS Info */
         ACCOUNT_ID = '014276069644'
         AWS_REGION = 'ap-northeast-2'
-        ECR_REPO = '014276069644.dkr.ecr.ap-northeast-2.amazonaws.com/osondoson-backend'
+        ECR_REPO = '014276069644.dkr.ecr.ap-northeast-2.amazonaws.com/eeum-backend'
 
         /* S3 Info */
         BUCKET_NAME = 'eeum-config-bucket'
@@ -39,6 +39,12 @@ pipeline {
                     // S3로부터 .env 파일 다운로드
                     s3Download(file: "${env.WORKSPACE}/.env", bucket: "${BUCKET_NAME}", path: 'backend/.env', force: true)
                 }
+            }
+        }
+
+        stage('Docker build') {
+            steps {
+                sh "docker build -t ${ECR_REPO}:latest ."
             }
         }
     }
