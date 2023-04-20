@@ -13,6 +13,9 @@ pipeline {
         AWS_REGION = 'ap-northeast-2'
         ECR_REPO = '014276069644.dkr.ecr.ap-northeast-2.amazonaws.com/osondoson-backend'
 
+        /* S3 Info */
+        BUCKET_NAME = 'eeum-config-bucket'
+
         /* VM Info */
         TARGET_HOST = '34.64.144.19'
 
@@ -30,14 +33,11 @@ pipeline {
             }
         }
 
-        stage('Append .yml files') {
+        stage('Append .env files') {
             steps {
-                def bucketName = 'eeum-config-bucket'
-                def envFileDir = "${env.WORKSPACE}"
-
                 withAWS(region: "${AWS_REGION}", credentials: "${AWS_S3_CREDENTIAL_ID}") {
                     // S3로부터 .env 파일 다운로드
-                    s3Download(file: "${envFileDir}/.env", bucket: "${bucketName}", path: 'backend/.env', force: true)
+                    s3Download(file: "${env.WORKSPACE}/.env", bucket: "${BUCKET_NAME}", path: 'backend/.env', force: true)
                 }
             }
         }
