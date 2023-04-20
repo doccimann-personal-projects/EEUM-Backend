@@ -80,7 +80,7 @@ pipeline {
 
                     sshagent(credentials: ["${VM_ENTER_CREDENTIAL_ID}"]) {
                         sh """
-                                ssh -o StrictHostKeyChecking=no ${USERNAME}@${TARGET_HOST} '
+                                ssh -o StrictHostKeyChecking=no elice@${TARGET_HOST} '
                                     sudo chmod 777 /var/run/docker.sock
                                     aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.ap-northeast-2.amazonaws.com/
                                     docker pull ${ECR_REPO}:latest
