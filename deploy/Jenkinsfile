@@ -3,13 +3,14 @@ pipeline {
 
     environment {
         /* Jenkins credentials */
-        AWS_CREDENTIAL_ID = 'ecr-user'
+        AWS_ECR_CREDENTIAL_ID = 'ecr-user'
+        AWS_S3_CREDENTIAL_ID = 's3-credential'
         VM_ENTER_CREDENTIAL_ID = 'enter-vm-credential' // elice VM에 접속하기 위한 credential
         OSONDOSON_VM_CREDENTIAL_ID = 'team2-vm-credential' // VM 자체에 대한 credential (사용자 이름, 패스워드)
 
         /* AWS Info */
         ACCOUNT_ID = '014276069644'
-        REGION = 'ap-northeast-2'
+        AWS_REGION = 'ap-northeast-2'
         ECR_REPO = '014276069644.dkr.ecr.ap-northeast-2.amazonaws.com/osondoson-backend'
 
         /* VM Info */
@@ -26,6 +27,16 @@ pipeline {
                 deleteDir() // 이전에 가져온 소스 코드를 모두 삭제
                 checkout scm
                 sh 'git checkout develop'
+            }
+        }
+
+        stage('Append .yml files') {
+            def bucketName = 'eeum-config-bucket'
+            def envFileDir = "${env.WORKSPACE}"
+
+            withAWS(region: "${AWS_REGION}", credentials: "${AWS_S3_CREDENTIAL_ID}") {
+                // S3로부터 .env 파일 다운로드
+                s3Download(file: "${envFileDir}/.env", bucket: "${bucketName}", path: 'backend/.env', force: true)
             }
         }
     }
