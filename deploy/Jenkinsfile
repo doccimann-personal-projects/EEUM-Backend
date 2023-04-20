@@ -5,7 +5,7 @@ pipeline {
         /* Jenkins credentials */
         AWS_ECR_CREDENTIAL_ID = 'ecr-user'
         AWS_S3_CREDENTIAL_ID = 's3-credential'
-        VM_ENTER_CREDENTIAL_ID = 'enter-vm-credential' // elice VM에 접속하기 위한 credential
+        VM_ENTER_CREDENTIAL_ID = 'vm-ssh-credential' // elice VM에 접속하기 위한 credential
         TEAM2_VM_CREDENTIAL_ID = 'team2-vm-credential' // VM 자체에 대한 credential (사용자 이름, 패스워드)
 
         /* AWS Info */
