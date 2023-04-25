@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SuccessInterceptor } from './common/interceptors/success.interceptor';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import expressBasicAuth from 'express-basic-auth';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';

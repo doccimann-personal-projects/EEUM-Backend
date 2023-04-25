@@ -6,14 +6,12 @@ import {
   Patch,
   Param,
   Delete,
-  HttpException,
   UseFilters,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
-import { ResourceDuplicatedException } from '../common/customExceptions/resource-duplicated.exception';
 
 @Controller('api/users')
 @UseFilters(HttpExceptionFilter)
