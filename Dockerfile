@@ -12,6 +12,6 @@ WORKDIR /app
 COPY package*.json ./
 COPY .env ./
 COPY --from=BUILDER /app/dist ./dist
-RUN npm ci --omit=dev && npm install -g pm2
+RUN npm ci --omit=dev && npm install -g pm2 && npx prisma generate
 EXPOSE 3500
 CMD ["pm2-runtime", "dist/main.js"]
