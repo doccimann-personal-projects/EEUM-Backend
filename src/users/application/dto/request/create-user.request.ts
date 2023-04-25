@@ -74,9 +74,8 @@ export class CreateUserRequest {
   detailAddress: string;
 
   // user entity로 변환하는 메소드
-  toUserEntity(role: Role = Role.USER): User {
+  toUserEntity(role: Role = Role.USER): Omit<User, 'id'> {
     return {
-      id: undefined,
       email: this.email,
       password: this.password,
       firstName: this.firstName,
@@ -98,9 +97,8 @@ export class CreateUserRequest {
   }
 
   // addressInfo entity로 변환하는 메소드
-  toAddressInfoEntity(userId: bigint): AddressInfo {
+  toAddressInfoEntity(userId: bigint): Omit<AddressInfo, 'id'> {
     return {
-      id: undefined,
       userId: userId,
       zipCode: this.zipCode,
       mainAddress: this.mainAddress,
