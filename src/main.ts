@@ -27,7 +27,6 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   // Filters
-  app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new AllExceptionsFilter());
 
   // security for swagger
