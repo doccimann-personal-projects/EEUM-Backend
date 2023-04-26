@@ -39,7 +39,7 @@ export class CreateUserRequest {
   @IsPhoneNumber('KR')
   phoneNumber: string;
 
-  @IsEnum(Gender)
+  @IsEnum(Object.values(Gender))
   @IsNotEmpty()
   gender: Gender;
 
