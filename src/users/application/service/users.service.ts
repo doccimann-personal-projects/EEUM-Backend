@@ -38,8 +38,6 @@ export class UsersService {
       throw new ResourceDuplicatedException(validationResult.message);
     }
 
-    console.log(typeof createRequest);
-
     // 2. password를 bcrypt를 이용해 해싱
     const hashedRequest = await createRequest.getHashedRequest();
 

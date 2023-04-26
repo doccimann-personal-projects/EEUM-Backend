@@ -2,7 +2,7 @@ import { AddressInfo, Gender, Role, Status, User } from '@prisma/client';
 
 export class CreateUserResponse {
   constructor(
-    readonly id: bigint,
+    readonly id: number,
     readonly email: string,
     readonly nameInfo: NameInfo,
     readonly nickname: string,
@@ -48,7 +48,7 @@ export class CreateUserResponse {
     const address: Address = { zipCode, mainAddress, detailAddress };
 
     return new CreateUserResponse(
-      id,
+      Number(id),
       email,
       nameInfo,
       nickname,
