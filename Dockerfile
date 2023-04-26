@@ -2,7 +2,7 @@
 FROM node:18-alpine as BUILDER
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm install && npx prisma generate
 COPY . .
 RUN npm run build
 
