@@ -7,37 +7,52 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  REGISTERED
+  UNREGISTERED
+}
+
 model User {
-  id              BigInt      @id @default(autoincrement())
-  email           String      @db.VarChar(60)
-  password        String      @db.VarChar(200)
-  firstName       String      @map("first_name") @db.VarChar(40)
-  lastName        String      @map("last_name") @db.VarChar(40)
-  nickname        String      @db.VarChar(50)
-  phoneNumber     String      @map("phone_ number") @db.VarChar(30)
-  gender          String      @db.VarChar(20)
-  birthYear       Int         @map("birth_year")
-  birthMonth      Int         @map("birth_month")
-  birthDate       Int         @map("birth_date")
-  profilePhotoUrl String?     @map("profile_photo_url") @db.VarChar(512)
-  role            String      @default("USER") @db.VarChar(30)
-  status          String      @db.VarChar(30)
-  addressInfo     AddresInfo? // 1-1
+  id              BigInt       @id @default(autoincrement())
+  email           String       @db.VarChar(60)
+  password        String       @db.VarChar(200)
+  firstName       String       @map("first_name") @db.VarChar(40)
+  lastName        String       @map("last_name") @db.VarChar(40)
+  nickname        String       @db.VarChar(50)
+  phoneNumber     String       @map("phone_number") @db.VarChar(30)
+  gender          Gender       @map("gender")
+  birthYear       Int          @map("birth_year")
+  birthMonth      Int          @map("birth_month")
+  birthDate       Int          @map("birth_date")
+  profilePhotoUrl String?      @map("profile_photo_url") @db.VarChar(512)
+  role            Role         @default(USER) @map("role")
+  status          Status       @default(REGISTERED) @map("status")
+  addressInfo     AddressInfo? // 1-1
   diaryList       Diary[] // 1-N
-  createdAt       DateTime    @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt       DateTime?   @map("updated_at") @db.DateTime(0)
-  deletedAt       DateTime?   @map("deleted_at") @db.DateTime(0)
-  isDeleted       Boolean     @default(false) @map("is_deleted")
+  createdAt       DateTime     @default(now()) @map("created_at") @db.DateTime(0)
+  updatedAt       DateTime?    @map("updated_at") @db.DateTime(0)
+  deletedAt       DateTime?    @map("deleted_at") @db.DateTime(0)
+  isDeleted       Boolean      @default(false) @map("is_deleted")
 
   @@map("users")
 }
 
-model AddresInfo {
+model AddressInfo {
   id            BigInt    @id @default(autoincrement())
   userId        BigInt    @unique @map("user_id")
   user          User      @relation(fields: [userId], references: [id]) // 1-1
   zipCode       Int       @map("zip_code") @db.UnsignedInt
-  address       String    @db.VarChar(200)
+  mainAddress   String    @map("main_address") @db.VarChar(200)
   detailAddress String    @map("detail_address") @db.VarChar(200)
   createdAt     DateTime  @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt     DateTime? @map("updated_at") @db.DateTime(0)

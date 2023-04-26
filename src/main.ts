@@ -23,7 +23,12 @@ async function bootstrap() {
   app.useGlobalInterceptors(new SuccessInterceptor());
 
   // pipe
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  );
 
   // Filters
   app.useGlobalFilters(new AllExceptionsFilter());
