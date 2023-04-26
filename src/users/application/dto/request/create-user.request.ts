@@ -10,6 +10,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import * as bcrypt from 'bcrypt';
 
 export class CreateUserRequest {
   @IsString()
@@ -108,5 +109,15 @@ export class CreateUserRequest {
       deletedAt: null,
       isDeleted: false,
     };
+  }
+
+  // bcrypt를 이용해 비밀번호 해싱
+  async getHashedRequest(): Promise<CreateUserRequest> {
+    const { password } = this;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    this.password = hashedPassword;
+
+    return this;
   }
 }
