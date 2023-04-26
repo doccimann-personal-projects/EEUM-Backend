@@ -2,6 +2,8 @@
 FROM node:18-alpine as BUILDER
 WORKDIR /app
 COPY package*.json ./
+RUN npm config set proxy http://34.64.111.58:80
+RUN npm config set https-proxy http://34.64.111.58:80
 RUN npm install && npx prisma generate
 COPY . .
 RUN npm run build
