@@ -1,15 +1,15 @@
 import { Gender, Role, Status, User, AddressInfo } from '@prisma/client';
 import {
   IsEmail,
-  IsEnum,
+  IsEnum, IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
   Max,
-  Min,
-} from 'class-validator';
+  Min
+} from "class-validator";
 import * as bcrypt from 'bcrypt';
 
 export class CreateUserRequest {
@@ -39,7 +39,7 @@ export class CreateUserRequest {
   @IsPhoneNumber('KR')
   phoneNumber: string;
 
-  @IsEnum(Object.values(Gender))
+  @IsIn(Object.values(Gender))
   @IsNotEmpty()
   gender: Gender;
 
