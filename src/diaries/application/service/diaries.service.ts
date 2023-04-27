@@ -14,6 +14,6 @@ export class DiariesService {
     // userId 로그인 구현 전 임의로 넣어놓은 userId
     const diary = createDiaryDto.toDiaryEntity(BigInt(1));
     const createdDiary = await this.diaryRepository.create(diary);
-    return CreateDiaryResponse.fromEntities(createdDiary);
+    return CreateDiaryResponse.fromEntity(createdDiary);
   }
 }

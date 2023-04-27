@@ -7,7 +7,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class DiaryDao implements DiaryRepository {
   constructor(private readonly prismaService: PrismaService) {}
   async create(diary: Omit<Diary, 'id'>): Promise<Diary> {
-    // TODO
     return this.prismaService.diary.create({
       data: diary,
     });

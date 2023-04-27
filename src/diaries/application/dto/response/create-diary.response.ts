@@ -13,7 +13,7 @@ export class CreateDiaryResponse {
     readonly createdAt: Date,
   ) {}
 
-  static fromEntities(diary: Diary): CreateDiaryResponse {
+  static fromEntity(diary: Diary): CreateDiaryResponse {
     const { id, userId, title, content, weather, publishedDate, createdAt } =
       diary;
 

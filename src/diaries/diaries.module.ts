@@ -12,5 +12,6 @@ import { DiaryDao } from './infrastructure/diary.dao';
       useClass: DiaryDao,
     },
   ],
+  exports: [DiariesService],
 })
 export class DiariesModule {}
