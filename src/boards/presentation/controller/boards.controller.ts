@@ -1,25 +1,21 @@
 import { Controller, Post, Body, UseFilters } from '@nestjs/common';
-import { UsersService } from '../../application/service/users.service';
-import { CreateUserRequest } from '../../application/dto/request/create-user.request';
+import { BoardsService } from '../../application/service/boards.service';
+import { CreateBoardRequest } from '../../application/dto/request/create-board.request';
 import { HttpExceptionFilter } from '../../../common/filters/http-exception.filter';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SingleSuccessResult } from '../../../common/response/success-response.format';
-import { CreateUserResponse } from '../../application/dto/response/create-user.response';
+import { CreateBoardResponse } from '../../application/dto/response/create-board.response';
 import { FailureResult } from '../../../common/response/failure-response.format';
 
-@ApiTags('인증/인가')
-@Controller('api/users')
+@Controller('api/boards')
 @UseFilters(HttpExceptionFilter)
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+export class BoardsController {
+  constructor(private readonly boardsService: BoardsService) {}
 
-  @ApiOperation({
-    summary: '일반 사용자 회원가입입니다',
-  })
   @ApiResponse({
     status: 200,
-    description: '회원가입 성공 응답입니다',
-    type: CreateUserResponse,
+    description: '글작성 성공 응답입니다',
+    type: CreateBoardResponse,
   })
   @ApiResponse({
     status: 400,
@@ -31,8 +27,8 @@ export class UsersController {
     description: '내부 서버 에러입니다',
     type: FailureResult,
   })
-  @Post('/sign-up')
-  async signup(@Body() createRequest: CreateUserRequest) {
-    return await this.usersService.signup(createRequest);
+  @Post()
+  async create(@Body() createRequest: CreateBoardRequest) {
+    return await this.boardsService.create(createRequest);
   }
 }
