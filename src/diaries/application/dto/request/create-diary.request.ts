@@ -21,7 +21,7 @@ export class CreateDiaryDto {
 
   toDiaryEntity(userId: bigint): Omit<Diary, 'id'> {
     return {
-      userId: BigInt(userId),
+      userId: userId,
       title: this.title,
       content: this.content,
       weather: this.weather,
