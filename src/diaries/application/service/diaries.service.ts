@@ -15,7 +15,7 @@ export class DiariesService {
     // 만약 dto에서 Number로 감싸면 Type 'number' is not assignable to type 'bigint' 에러가 발생합니다.
     // Do not know how to serialize a BigInt 에러와 별개로 db에 데이터는 잘 저장됩니다.
     // 여기서 '1', dto에서 userId:string으로 받았을 때와 1, userId:number로 받았을 때 똑같이 에러가 발생합니다. BigInt를 사용하지않고 number 그대로를 넣어도 에러가 발생합니다.
-    const diary = createDiaryDto.toDiaryEntity('1');
+    const diary = createDiaryDto.toDiaryEntity(BigInt(1));
     return await this.diaryRepository.create(diary);
   }
 }

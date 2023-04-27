@@ -19,7 +19,7 @@ export class CreateDiaryDto {
   @IsNotEmpty()
   publishedDate: string;
 
-  toDiaryEntity(userId: string): Omit<Diary, 'id'> {
+  toDiaryEntity(userId: bigint): Omit<Diary, 'id'> {
     return {
       userId: BigInt(userId),
       title: this.title,
