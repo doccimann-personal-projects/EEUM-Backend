@@ -6,6 +6,7 @@ import {
   UseGuards,
   Param,
   ParseIntPipe,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from '../../application/service/users.service';
 import { CreateUserRequest } from '../../application/dto/request/create-user.request';
@@ -23,8 +24,9 @@ import { LoginUserResponse } from '../../application/dto/response/login-user.res
 import { JwtAuthResult } from '../decorators/jwt-auth.result';
 import { UserRoleExistsPipe } from '../pipes/user-role.exists.pipe';
 import { ReadUserResponse } from '../../application/dto/response/read-user.response';
-import { NotAuthorizedException } from '../../../common/customExceptions/not-authorized.exception';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from '@prisma/client';
+import { DeleteUserResponse } from '../../application/dto/response/delete-user.response';
 
 @ApiTags('인증/인가')
 @Controller('api/users')
@@ -84,12 +86,12 @@ export class UsersController {
   @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
-    description: '로그인 성공 응답입니다',
+    description: '프로필 조회 성공 응답입니다',
     type: ReadUserResponse,
   })
   @ApiResponse({
     status: 401,
-    description: '로그인 실패 응답입니다',
+    description: '프로필 조회 실패 응답입니다',
     type: FailureResult,
   })
   @ApiResponse({
@@ -101,13 +103,38 @@ export class UsersController {
   @Post('/:id/profile')
   async getProfile(
     @Param('id', ParseIntPipe) userId: number,
-    @JwtAuthResult(UserRoleExistsPipe) authResult: ReadUserResponse, // Guard를 통해 인증된 결과에서 USER Role이 존재하는지 검증한 결과를 받아온다
+    @JwtAuthResult(UserRoleExistsPipe) user: User, // Guard를 통해 인증된 결과에서 USER Role이 존재하는지 검증한 결과를 받아온다
   ): Promise<ReadUserResponse> {
-    // userId와 id가 일치하지 않으면 예외를 발생시켜야함
-    if (authResult.id !== userId) {
-      throw new NotAuthorizedException('허용되지 않은 접근입니다');
-    }
+    const result = await this.usersService.getProfile(user, userId);
+    console.log(result);
+    return result;
+  }
 
-    return authResult;
+  @ApiOperation({
+    summary: '회원탈퇴 입니다',
+  })
+  @ApiBearerAuth('accesskey')
+  @ApiResponse({
+    status: 200,
+    description: '회원탈퇴 성공 응답입니다',
+    type: DeleteUserResponse,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '회원탈퇴 실패 응답입니다',
+    type: FailureResult,
+  })
+  @ApiResponse({
+    status: 500,
+    description: '내부 서버 에러입니다',
+    type: FailureResult,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('/:id/un-register')
+  async unregister(
+    @Param('id', ParseIntPipe) userId: number,
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
+  ): Promise<DeleteUserResponse> {
+    return await this.usersService.unregisterUser(user, userId);
   }
 }

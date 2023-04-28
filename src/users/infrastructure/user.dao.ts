@@ -1,7 +1,8 @@
-import { UserRepository } from '../domain/user.repository';
+import { UserRepository } from '../domain/repository/user.repository';
 import { Status, User } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { getUserSoftDeleteData } from '../domain/extensions/user.extensions';
 
 @Injectable()
 export class UserDao implements UserRepository {
@@ -17,6 +18,9 @@ export class UserDao implements UserRepository {
       where: {
         email: email,
         status: Status.REGISTERED,
+      },
+      include: {
+        addressInfo: true,
       },
     });
   }
@@ -35,6 +39,15 @@ export class UserDao implements UserRepository {
       where: {
         id: id,
       },
+    });
+  }
+
+  async deleteById(id: number): Promise<User> {
+    return this.prismaService.user.update({
+      where: {
+        id: id,
+      },
+      data: getUserSoftDeleteData(),
     });
   }
 }

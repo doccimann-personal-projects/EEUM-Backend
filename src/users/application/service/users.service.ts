@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../dto/jwt-payload';
-import { Status } from '@prisma/client';
+import { Status, User } from '@prisma/client';
 import { ResourceDuplicatedException } from '../../../common/customExceptions/resource-duplicated.exception';
 import { NotFoundException } from '../../../common/customExceptions/not-found.exception';
 import { CreateUserRequest } from '../dto/request/create-user.request';
@@ -12,9 +12,10 @@ import { LoginUserRequest } from '../dto/request/login-user.request';
 import { LoginUserResponse } from '../dto/response/login-user.response';
 import { ReadUserResponse } from '../dto/response/read-user.response';
 import { UserValidator } from '../validator/user.validator';
-import { UserRepository } from '../../domain/user.repository';
-import { AddressInfoRepository } from '../../domain/address-info.repository';
+import { UserRepository } from '../../domain/repository/user.repository';
+import { AddressInfoRepository } from '../../domain/repository/address-info.repository';
 import { NotAuthorizedException } from '../../../common/customExceptions/not-authorized.exception';
+import { DeleteUserResponse } from '../dto/response/delete-user.response';
 
 @Injectable()
 export class UsersService {
@@ -29,7 +30,6 @@ export class UsersService {
 
   // 트랜잭션 단위로 회원가입 로직을 처리하는 메소드
   async signup(createRequest: CreateUserRequest): Promise<CreateUserResponse> {
-    // 트랜잭션을 이용해서 생성 요청을 처리
     return await this.prismaService.$transaction(async () =>
       this.getSignupTransaction(createRequest),
     );
@@ -37,17 +37,33 @@ export class UsersService {
 
   // 로그인을 처리하는 메소드
   async login(loginRequest: LoginUserRequest): Promise<LoginUserResponse> {
-    // 트랜잭션을 이용해서 생성 요청을 처리
     return await this.prismaService.$transaction(async () =>
       this.getLoginTransaction(loginRequest),
     );
   }
 
+  // payload로부터 user entity를 가져오는 메소드
+  async getUserFromPayload(payload: JwtPayload): Promise<User> {
+    return this.prismaService.$transaction(async () =>
+      this.getUserFromPayloadTransaction(payload),
+    );
+  }
+
   // 프로필 조회를 처리하는 메소드
-  async findByJwtPayload(payload: JwtPayload): Promise<ReadUserResponse> {
+  async getProfile(user: User, userId: number): Promise<ReadUserResponse> {
     // 트랜잭션을 이용해서 생성 요청을 처리
     return await this.prismaService.$transaction(async () =>
-      this.getProfileTransaction(payload),
+      this.getProfileTransaction(user, userId),
+    );
+  }
+
+  // 회원 탈퇴를 처리하는 메소드
+  async unregisterUser(
+    user: User,
+    userId: number,
+  ): Promise<DeleteUserResponse> {
+    return await this.prismaService.$transaction(async () =>
+      this.unregisterUserTransaction(user, userId),
     );
   }
 
@@ -118,8 +134,9 @@ export class UsersService {
     return new LoginUserResponse(this.jwtService.sign(payload));
   }
 
-  // 프로필 조회 트랜잭션 쿼리들을 정의하는 메소드
-  async getProfileTransaction(payload: JwtPayload): Promise<ReadUserResponse> {
+  private async getUserFromPayloadTransaction(
+    payload: JwtPayload,
+  ): Promise<User> {
     const { id } = payload;
 
     const foundUser = await this.userRepository.findById(id);
@@ -128,10 +145,37 @@ export class UsersService {
       throw new NotFoundException('올바르지 않은 접근입니다');
     }
 
+    return foundUser;
+  }
+
+  // 프로필 조회 트랜잭션 쿼리들을 정의하는 메소드
+  private async getProfileTransaction(
+    user: User,
+    userId: number,
+  ): Promise<ReadUserResponse> {
+    if (Number(user.id) !== userId) {
+      throw new NotAuthorizedException('허용되지 않은 접근입니다');
+    }
+
     const foundAddressInfo = await this.addressInfoRepository.findByUserId(
-      Number(foundUser.id),
+      Number(user.id),
     );
 
-    return ReadUserResponse.fromEntities(foundUser, foundAddressInfo);
+    return ReadUserResponse.fromEntities(user, foundAddressInfo);
+  }
+
+  // 회원탈퇴 트랜잭션 쿼리들을 정의하는 메소드
+  private async unregisterUserTransaction(
+    user: User,
+    userId: number,
+  ): Promise<DeleteUserResponse> {
+    if (Number(user.id) !== userId) {
+      throw new NotAuthorizedException('허용되지 않은 접근입니다');
+    }
+
+    const deletedUser = await this.userRepository.deleteById(Number(user.id));
+    await this.addressInfoRepository.deleteByUserId(Number(user.id));
+
+    return DeleteUserResponse.fromEntity(deletedUser);
   }
 }
