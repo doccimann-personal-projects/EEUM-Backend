@@ -1,17 +1,20 @@
-import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { CreateUserRequest } from '../dto/request/create-user.request';
-import { UserRepository } from '../../domain/user.repository';
-import { CreateUserResponse } from '../dto/response/create-user.response';
-import { UserValidator } from '../validator/user.validator';
-import { ResourceDuplicatedException } from '../../../common/customExceptions/resource-duplicated.exception';
-import { AddressInfoRepository } from '../../domain/address-info.repository';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { LoginUserRequest } from '../dto/request/login-user.request';
-import { LoginUserResponse } from '../dto/response/login-user.response';
-import { NotFoundException } from '../../../common/customExceptions/not-found.exception';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../dto/jwt-payload';
+import { Status } from '@prisma/client';
+import { ResourceDuplicatedException } from '../../../common/customExceptions/resource-duplicated.exception';
+import { NotFoundException } from '../../../common/customExceptions/not-found.exception';
+import { CreateUserRequest } from '../dto/request/create-user.request';
+import { CreateUserResponse } from '../dto/response/create-user.response';
+import { LoginUserRequest } from '../dto/request/login-user.request';
+import { LoginUserResponse } from '../dto/response/login-user.response';
+import { ReadUserResponse } from '../dto/response/read-user.response';
+import { UserValidator } from '../validator/user.validator';
+import { UserRepository } from '../../domain/user.repository';
+import { AddressInfoRepository } from '../../domain/address-info.repository';
+import { NotAuthorizedException } from '../../../common/customExceptions/not-authorized.exception';
 
 @Injectable()
 export class UsersService {
@@ -37,6 +40,14 @@ export class UsersService {
     // 트랜잭션을 이용해서 생성 요청을 처리
     return await this.prismaService.$transaction(async () =>
       this.getLoginTransaction(loginRequest),
+    );
+  }
+
+  // 프로필 조회를 처리하는 메소드
+  async findByJwtPayload(payload: JwtPayload): Promise<ReadUserResponse> {
+    // 트랜잭션을 이용해서 생성 요청을 처리
+    return await this.prismaService.$transaction(async () =>
+      this.getProfileTransaction(payload),
     );
   }
 
@@ -105,5 +116,22 @@ export class UsersService {
     };
 
     return new LoginUserResponse(this.jwtService.sign(payload));
+  }
+
+  // 프로필 조회 트랜잭션 쿼리들을 정의하는 메소드
+  async getProfileTransaction(payload: JwtPayload): Promise<ReadUserResponse> {
+    const { id } = payload;
+
+    const foundUser = await this.userRepository.findById(id);
+
+    if (!foundUser || foundUser.status === Status.UNREGISTERED) {
+      throw new NotFoundException('올바르지 않은 접근입니다');
+    }
+
+    const foundAddressInfo = await this.addressInfoRepository.findByUserId(
+      Number(foundUser.id),
+    );
+
+    return ReadUserResponse.fromEntities(foundUser, foundAddressInfo);
   }
 }

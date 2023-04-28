@@ -9,4 +9,6 @@ export interface UserRepository {
 
   // nickname을 통해서 user를 찾아오는 메소드
   findRegisteredUserByNickname(nickname: string): Promise<User | null>;
+
+  findById(id: number): Promise<User | null>;
 }

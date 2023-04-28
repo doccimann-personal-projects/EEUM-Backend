@@ -12,4 +12,12 @@ export class AddressInfoDao implements AddressInfoRepository {
       data: addressInfo,
     });
   }
+
+  async findByUserId(userId: number): Promise<AddressInfo | null> {
+    return this.prismaService.addressInfo.findFirst({
+      where: {
+        userId: userId,
+      },
+    });
+  }
 }
