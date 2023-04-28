@@ -3,6 +3,8 @@ import { CreateDiaryDto } from '../dto/request/create-diary.request';
 import { UpdateDiaryDto } from '../dto/request/update-diary.request';
 import { DiaryRepository } from 'src/diaries/domain/diary.repository';
 import { CreateDiaryResponse } from '../dto/response/create-diary.response';
+import { SearchOption } from '../../application/dto/request/search-option.request';
+import { SearchOptionResponse } from '../dto/response/search-option.response';
 
 @Injectable()
 export class DiariesService {
@@ -15,5 +17,20 @@ export class DiariesService {
     const diary = createDiaryDto.toDiaryEntity(BigInt(1));
     const createdDiary = await this.diaryRepository.create(diary);
     return CreateDiaryResponse.fromEntity(createdDiary);
+  }
+
+  async findOne(diaryId: number) {
+    const foundedDiary = await this.diaryRepository.findOne(BigInt(diaryId));
+    return CreateDiaryResponse.fromEntity(foundedDiary);
+  }
+
+  async findLists(query: SearchOption) {
+    const foundedDiaries = await this.diaryRepository.findLists(query);
+    return SearchOptionResponse.fromEntities(
+      foundedDiaries['foundDiaries'],
+      foundedDiaries['totalElements'],
+      foundedDiaries['totalPages'],
+      query,
+    );
   }
 }
