@@ -1,6 +1,5 @@
 import { Board, BoardCategory } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsString, Max, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateBoardRequest {
   @IsEnum(BoardCategory)
