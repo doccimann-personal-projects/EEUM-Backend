@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DiariesService } from './application/service/diaries.service';
-import { DiariesController } from './presentation/diaries.controller';
+import { DiariesController } from './presentation/controller/diaries.controller';
 import { DiaryDao } from './infrastructure/diary.dao';
 
 @Module({
