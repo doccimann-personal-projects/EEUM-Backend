@@ -1,5 +1,4 @@
 import { Board, BoardCategory } from '@prisma/client';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateBoardResponse {
   id: number;

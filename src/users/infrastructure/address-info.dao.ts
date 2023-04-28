@@ -1,7 +1,8 @@
-import { AddressInfoRepository } from '../domain/address-info.repository';
+import { AddressInfoRepository } from '../domain/repository/address-info.repository';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AddressInfo } from '@prisma/client';
+import { getAddressInfoSoftDeleteData } from '../domain/extensions/address-info.extensions';
 
 @Injectable()
 export class AddressInfoDao implements AddressInfoRepository {
@@ -18,6 +19,15 @@ export class AddressInfoDao implements AddressInfoRepository {
       where: {
         userId: userId,
       },
+    });
+  }
+
+  deleteByUserId(userId: number): Promise<AddressInfo> {
+    return this.prismaService.addressInfo.update({
+      where: {
+        userId: userId,
+      },
+      data: getAddressInfoSoftDeleteData(),
     });
   }
 }
