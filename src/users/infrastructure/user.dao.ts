@@ -29,4 +29,12 @@ export class UserDao implements UserRepository {
       },
     });
   }
+
+  async findById(id: number): Promise<User | null> {
+    return this.prismaService.user.findFirst({
+      where: {
+        id: id,
+      },
+    });
+  }
 }

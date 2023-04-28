@@ -1,44 +1,45 @@
 import { AddressInfo, Gender, Role, Status, User } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
+import { Address, BirthInfo, NameInfo } from './common/response.types';
 
 export class CreateUserResponse {
   @ApiProperty({
-    description: '식별자 값입니다.',
+    description: '사용자 식별자',
     example: 1,
     required: true,
   })
   id: number;
 
   @ApiProperty({
-    description: '이메일을 입력해주세요! 중복은 허용하지 않습니다!',
+    description: '이메일',
     example: 'test@example.com',
     required: true,
   })
   email: string;
 
   @ApiProperty({
-    description: '식별자 값입니다.',
+    description: '이름 정보',
     example: { firstName: '도엽', lastName: '김' },
     required: true,
   })
   nameInfo: NameInfo;
 
   @ApiProperty({
-    description: '닉네임을 입력해주세요! 중복은 허용하지 않습니다!',
+    description: '닉네임',
     example: 'Brian',
     required: true,
   })
   nickname: string;
 
   @ApiProperty({
-    description: '휴대폰 번호를 입력하세요! 한국 휴대폰 번호만 허용합니다!',
+    description: '휴대폰번호',
     example: '010-1234-1234',
     required: true,
   })
   phoneNumber: string;
 
   @ApiProperty({
-    description: '성별을 입력하세요! MALE, FEMALE 둘 중 하나만 가능합니다!',
+    description: '성별',
     examples: ['MALE', 'FEMALE'],
     required: true,
   })
@@ -52,14 +53,14 @@ export class CreateUserResponse {
   birthInfo: BirthInfo;
 
   @ApiProperty({
-    description: '프로필 사진 url을 입력하세요! 없다면 안 던져도 됩니다!',
+    description: '프로필 사진 url',
     examples: [null, 'http://any-prpfile'],
     required: true,
   })
   profilePhotoUrl: string | null;
 
   @ApiProperty({
-    description: '사용자 권한입니다.',
+    description: '사용자 권한',
     example: 'USER',
     default: 'USER',
     required: true,
@@ -67,7 +68,7 @@ export class CreateUserResponse {
   role: Role;
 
   @ApiProperty({
-    description: '회원의 상태 값입니다. 기본값은 REGISTERED 입니다.',
+    description: '회원의 상태 값',
     example: 'REGISTERED',
     required: true,
   })
@@ -165,21 +166,4 @@ export class CreateUserResponse {
       createdAt,
     );
   }
-}
-
-interface NameInfo {
-  firstName: string;
-  lastName: string;
-}
-
-interface BirthInfo {
-  year: number;
-  month: number;
-  date: number;
-}
-
-interface Address {
-  zipCode: number;
-  mainAddress: string;
-  detailAddress: string;
 }
