@@ -3,9 +3,9 @@ import { UsersService } from '../../application/service/users.service';
 import { CreateUserRequest } from '../../application/dto/request/create-user.request';
 import { HttpExceptionFilter } from '../../../common/filters/http-exception.filter';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SingleSuccessResult } from '../../../common/response/success-response.format';
 import { CreateUserResponse } from '../../application/dto/response/create-user.response';
 import { FailureResult } from '../../../common/response/failure-response.format';
+import { LoginUserRequest } from '../../application/dto/request/login-user.request';
 
 @ApiTags('인증/인가')
 @Controller('api/users')
@@ -34,5 +34,10 @@ export class UsersController {
   @Post('/sign-up')
   async signup(@Body() createRequest: CreateUserRequest) {
     return await this.usersService.signup(createRequest);
+  }
+
+  @Post('/login')
+  async jwtLogin(@Body() loginRequest: LoginUserRequest) {
+    return await this.usersService.login(loginRequest);
   }
 }
