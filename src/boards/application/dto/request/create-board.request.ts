@@ -14,7 +14,7 @@ export class CreateBoardRequest {
   @IsNotEmpty()
   content: string;
 
-  // user entity로 변환하는 메소드
+  // entity로 변환하는 메소드
   toBoardEntity(userId: bigint): Omit<Board, 'id'> {
     return {
       userId: userId,

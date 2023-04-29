@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseFilters } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Body,
+  Param,
+  UseFilters,
+} from '@nestjs/common';
 import { BoardsService } from '../../application/service/boards.service';
 import { CreateBoardRequest } from '../../application/dto/request/create-board.request';
 import { HttpExceptionFilter } from '../../../common/filters/http-exception.filter';
@@ -30,5 +38,15 @@ export class BoardsController {
   @Post()
   async create(@Body() createRequest: CreateBoardRequest) {
     return await this.boardsService.create(createRequest);
+  }
+
+  @Get('/:id')
+  getBoard(@Param('id') boardId: number) {
+    return this.boardsService.getBoardById(boardId);
+  }
+
+  @Delete('/:id')
+  async unregister(@Param('id') boardId: number) {
+    return await this.boardsService.unregisterBoard(boardId);
   }
 }
