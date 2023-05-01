@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { paginatedDiaries } from '../application/dto/response/read-diaries.response';
 import { diaryDetails } from '../application/dto/response/read-diary.response';
+import { count } from '../application/dto/response/delete-diary.response';
 
 @Injectable()
 export class DiaryDao implements DiaryRepository {
@@ -82,8 +83,8 @@ export class DiaryDao implements DiaryRepository {
     });
   }
 
-  async deleteEmotion(diaryId: bigint) {
-    await this.prismaService.diaryEmotion.updateMany({
+  async deleteEmotion(diaryId: bigint): Promise<count> {
+    return await this.prismaService.diaryEmotion.updateMany({
       where: {
         diaryId: diaryId,
       },
@@ -95,8 +96,8 @@ export class DiaryDao implements DiaryRepository {
     });
   }
 
-  async deleteFood(diaryId: bigint) {
-    await this.prismaService.recommendedFood.updateMany({
+  async deleteFood(diaryId: bigint): Promise<count> {
+    return await this.prismaService.recommendedFood.updateMany({
       where: {
         diaryId: diaryId,
       },

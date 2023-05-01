@@ -75,3 +75,7 @@ export class DeleteDiaryResponse {
     );
   }
 }
+
+export interface count {
+  count: number;
+}
