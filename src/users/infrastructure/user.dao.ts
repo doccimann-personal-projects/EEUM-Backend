@@ -3,6 +3,7 @@ import { Status, User } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getUserSoftDeleteData } from '../domain/extensions/user.extensions';
+import { UserWithAddressInfo } from '../domain/entity/user-with-address-info';
 
 @Injectable()
 export class UserDao implements UserRepository {
@@ -48,6 +49,28 @@ export class UserDao implements UserRepository {
         id: id,
       },
       data: getUserSoftDeleteData(),
+    });
+  }
+
+  async findRegisteredUserJoinAddressInfoById(
+    id: number,
+  ): Promise<UserWithAddressInfo | null> {
+    return this.prismaService.user.findFirst({
+      where: {
+        id: id,
+      },
+      include: {
+        addressInfo: true,
+      },
+    });
+  }
+
+  async update(userId: number, updateData: Partial<User>): Promise<User> {
+    return this.prismaService.user.update({
+      where: {
+        id: userId,
+      },
+      data: updateData,
     });
   }
 }

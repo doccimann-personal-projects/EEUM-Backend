@@ -7,6 +7,7 @@ import {
   Param,
   ParseIntPipe,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { UsersService } from '../../application/service/users.service';
 import { CreateUserRequest } from '../../application/dto/request/create-user.request';
@@ -27,6 +28,8 @@ import { ReadUserResponse } from '../../application/dto/response/read-user.respo
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '@prisma/client';
 import { DeleteUserResponse } from '../../application/dto/response/delete-user.response';
+import { UpdateUserResponse } from '../../application/dto/response/update-user.response';
+import { UpdateUserRequest } from '../../application/dto/request/update-user.request';
 
 @ApiTags('인증/인가')
 @Controller('api/users')
@@ -105,9 +108,7 @@ export class UsersController {
     @Param('id', ParseIntPipe) userId: number,
     @JwtAuthResult(UserRoleExistsPipe) user: User, // Guard를 통해 인증된 결과에서 USER Role이 존재하는지 검증한 결과를 받아온다
   ): Promise<ReadUserResponse> {
-    const result = await this.usersService.getProfile(user, userId);
-    console.log(result);
-    return result;
+    return await this.usersService.getProfile(user, userId);
   }
 
   @ApiOperation({
@@ -130,11 +131,45 @@ export class UsersController {
     type: FailureResult,
   })
   @UseGuards(AuthGuard('jwt'))
-  @Delete('/:id/un-register')
+  @Delete('/:id')
   async unregister(
     @Param('id', ParseIntPipe) userId: number,
     @JwtAuthResult(UserRoleExistsPipe) user: User,
   ): Promise<DeleteUserResponse> {
     return await this.usersService.unregisterUser(user, userId);
+  }
+
+  @ApiOperation({
+    summary: '유저 정보 수정입니다',
+  })
+  @ApiBearerAuth('accesskey')
+  @ApiResponse({
+    status: 200,
+    description: '회원정보 수정 성공 응답입니다',
+    type: UpdateUserResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '회원정보 수정 실패 응답입니다',
+    type: FailureResult,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '회원정보 수정 과정에서 인증 실패 응답입니다',
+    type: FailureResult,
+  })
+  @ApiResponse({
+    status: 500,
+    description: '내부 서버 에러입니다',
+    type: FailureResult,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @Put('/:id')
+  async update(
+    @Param('id', ParseIntPipe) userId: number,
+    @Body() updateRequest: UpdateUserRequest,
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
+  ): Promise<UpdateUserResponse> {
+    return await this.usersService.update(user, userId, updateRequest);
   }
 }

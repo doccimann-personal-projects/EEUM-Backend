@@ -16,6 +16,8 @@ import { UserRepository } from '../../domain/repository/user.repository';
 import { AddressInfoRepository } from '../../domain/repository/address-info.repository';
 import { NotAuthorizedException } from '../../../common/customExceptions/not-authorized.exception';
 import { DeleteUserResponse } from '../dto/response/delete-user.response';
+import { UpdateUserRequest } from '../dto/request/update-user.request';
+import { UpdateUserResponse } from '../dto/response/update-user.response';
 
 @Injectable()
 export class UsersService {
@@ -67,6 +69,17 @@ export class UsersService {
     );
   }
 
+  // 유저를 업데이트 처리하는 메소드
+  async update(
+    user: User,
+    userId: number,
+    updateRequest: UpdateUserRequest,
+  ): Promise<UpdateUserResponse> {
+    return await this.prismaService.$transaction(async () =>
+      this.updateUserTransaction(user, userId, updateRequest),
+    );
+  }
+
   // 회원가입 트랜잭션 내부의 로직을 정의하는 private 메소드
   private async getSignupTransaction(
     createRequest: CreateUserRequest,
@@ -77,7 +90,7 @@ export class UsersService {
     );
 
     if (!validationResult.success) {
-      throw new ResourceDuplicatedException(validationResult.message);
+      throw validationResult.exception;
     }
 
     // 2. password를 bcrypt를 이용해 해싱
@@ -177,5 +190,46 @@ export class UsersService {
     await this.addressInfoRepository.deleteByUserId(Number(user.id));
 
     return DeleteUserResponse.fromEntity(deletedUser);
+  }
+
+  // 유저 정보 업데이트 트랜잭션 쿼리들을 정의하는 메소드
+  private async updateUserTransaction(
+    user: User,
+    userId: number,
+    updateRequest: UpdateUserRequest,
+  ): Promise<UpdateUserResponse> {
+    // 업데이트 가능한지 검증
+    const validationResult = await this.userValidator.isUpdatable(
+      user,
+      userId,
+      updateRequest,
+    );
+
+    if (!validationResult.success) {
+      throw validationResult.exception;
+    }
+
+    // 패스워드를 해싱한다
+    const hashedRequest = await updateRequest.getHashedRequest();
+
+    // 업데이트 데이터들을 가져온다
+    const userUpdateData = hashedRequest.toUserUpdateData();
+    const addressInfoUpdatedata = hashedRequest.toAddressInfoUpdateData();
+
+    // user와 addressInfo를 조인해서 가져온다
+    const userWithAddress =
+      await this.userRepository.findRegisteredUserJoinAddressInfoById(userId);
+
+    // 업데이트 수행
+    const updatedUser = await this.userRepository.update(
+      userId,
+      userUpdateData,
+    );
+    const updatedAddress = await this.addressInfoRepository.update(
+      Number(userWithAddress.addressInfo.id),
+      addressInfoUpdatedata,
+    );
+
+    return UpdateUserResponse.fromEntites(updatedUser, updatedAddress);
   }
 }
