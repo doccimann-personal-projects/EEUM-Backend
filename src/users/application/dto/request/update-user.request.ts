@@ -8,7 +8,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { AddressInfo, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { getCurrentUtcDate } from "../../../../common/utils/date-utils";
+import { getCurrentUtcDate } from '../../../../common/utils/date-utils';
 
 export class UpdateUserRequest {
   @ApiProperty({

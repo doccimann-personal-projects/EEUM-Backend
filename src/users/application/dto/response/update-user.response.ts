@@ -1,6 +1,6 @@
 import { PickType } from '@nestjs/swagger';
 import { CommonUserResponse } from './common/common-user.response';
-import { AddressInfo, Gender, Role, Status, User } from "@prisma/client";
+import { AddressInfo, Gender, Role, Status, User } from '@prisma/client';
 import { Address, BirthInfo, NameInfo } from './common/response.types';
 import { CreateUserResponse } from './create-user.response';
 
