@@ -6,6 +6,9 @@ import {
   IsString,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { AddressInfo, User } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { getCurrentUtcDate } from "../../../../common/utils/date-utils";
 
 export class UpdateUserRequest {
   @ApiProperty({
@@ -66,7 +69,7 @@ export class UpdateUserRequest {
   })
   @IsOptional()
   @IsString()
-  progilePhotoUrl?: string;
+  profilePhotoUrl?: string;
 
   @ApiProperty({
     description: '우편번호를 입력해주세요!',
@@ -97,4 +100,36 @@ export class UpdateUserRequest {
   @IsString()
   @IsNotEmpty()
   detailAddress?: string;
+
+  // user를 업데이트할 데이터를 반환하는 메소드
+  toUserUpdateData(): Partial<User> {
+    return {
+      password: this.password,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      nickname: this.nickname,
+      phoneNumber: this.phoneNumber,
+      profilePhotoUrl: this.profilePhotoUrl,
+      updatedAt: getCurrentUtcDate(),
+    };
+  }
+
+  // addressInfo를 업데이트할 데이터를 반환하는 메소드
+  toAddressInfoUpdateData(): Partial<AddressInfo> {
+    return {
+      zipCode: this.zipCode,
+      mainAddress: this.mainAddress,
+      detailAddress: this.detailAddress,
+      updatedAt: getCurrentUtcDate(),
+    };
+  }
+
+  // bcrypt를 이용해 비밀번호 해싱
+  async getHashedRequest(): Promise<UpdateUserRequest> {
+    const { password } = this;
+
+    this.password = password ? await bcrypt.hash(password, 10) : password;
+
+    return this;
+  }
 }

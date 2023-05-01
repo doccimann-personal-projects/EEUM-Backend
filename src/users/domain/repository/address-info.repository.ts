@@ -6,4 +6,6 @@ export interface AddressInfoRepository {
   findByUserId(userId: number): Promise<AddressInfo | null>;
 
   deleteByUserId(userId: number): Promise<AddressInfo>;
+
+  update(id: number, updateData: Partial<AddressInfo>): Promise<AddressInfo>;
 }
