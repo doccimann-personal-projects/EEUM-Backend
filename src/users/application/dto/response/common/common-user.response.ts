@@ -92,4 +92,11 @@ export class CommonUserResponse {
     required: true,
   })
   createdAt: Date;
+
+  @ApiProperty({
+    description: '수정 일자입니다',
+    example: '2023-04-26T13:10:48.000Z',
+    required: false,
+  })
+  updatedAt: Date;
 }
