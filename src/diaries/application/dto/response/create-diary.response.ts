@@ -1,4 +1,4 @@
-import { Diary } from '@prisma/client';
+import { Diary, DiaryEmotion, RecommendedFood } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDiaryResponse {
@@ -18,19 +18,18 @@ export class CreateDiaryResponse {
 
   @ApiProperty({
     description:
-      '일기의 내용을 통해 감정을 분석하고 추출된 감정에 따라 추천해주는 음식들의 식별자 리스트입니다.',
-    example: [1, 2, 3, 4, 5],
+      '일기의 내용을 통해 감정을 분석하고 추출된 감정에 따라 추천해주는 음식들의 리스트입니다.',
+    example: [],
     required: true,
   })
-  recommandedFoodList: number[];
+  recommendedFoodList: Array<RecommendedFood>;
 
   @ApiProperty({
-    description:
-      '일기의 내용을 토대로 감정을 분석하여 추출한 식별자 리스트입니다.',
-    example: [1, 2, 3],
+    description: '일기의 내용을 토대로 감정을 분석하여 추출한 리스트입니다.',
+    example: [],
     required: true,
   })
-  diaryEmotionList: number[];
+  diaryEmotionList: Array<DiaryEmotion>;
 
   @ApiProperty({
     description: '100자 이내로 일기 제목을 작성해주세요.',
@@ -70,8 +69,8 @@ export class CreateDiaryResponse {
   constructor(
     id: number,
     userId: number,
-    recommandedFoodList: number[],
-    diaryEmotionList: number[],
+    recommendedFoodList: Array<RecommendedFood>,
+    diaryEmotionList: Array<DiaryEmotion>,
     title: string,
     content: string,
     weather: string,
@@ -80,7 +79,7 @@ export class CreateDiaryResponse {
   ) {
     this.id = id;
     this.userId = userId;
-    this.recommandedFoodList = recommandedFoodList;
+    this.recommendedFoodList = recommendedFoodList;
     this.diaryEmotionList = diaryEmotionList;
     this.title = title;
     this.content = content;
@@ -94,13 +93,13 @@ export class CreateDiaryResponse {
       diary;
 
     // 추후에 감정분석과 연계돼서 작성 예정
-    const recommandedFoodList: number[] = [];
-    const diaryEmotionList: number[] = [];
+    const recommendedFoodList: Array<RecommendedFood> = [];
+    const diaryEmotionList: Array<DiaryEmotion> = [];
 
     return new CreateDiaryResponse(
       Number(id),
       Number(userId),
-      recommandedFoodList,
+      recommendedFoodList,
       diaryEmotionList,
       title,
       content,
