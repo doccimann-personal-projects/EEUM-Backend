@@ -1,10 +1,15 @@
 import { Diary } from '@prisma/client';
-import { SearchOption } from '../application/dto/request/search-option.request';
+import { paginatedDiaries } from '../application/dto/response/read-diaries.response';
 
 export interface DiaryRepository {
   create(diary: Omit<Diary, 'id'>): Promise<Diary>;
 
   findOne(diaryId: bigint): Promise<Diary>;
 
-  findLists(query: SearchOption): Promise<object>;
+  getPaginatedDiaries(
+    page: number,
+    elements: number,
+  ): Promise<Array<paginatedDiaries>>;
+
+  getAllDiaries(): Promise<number>;
 }

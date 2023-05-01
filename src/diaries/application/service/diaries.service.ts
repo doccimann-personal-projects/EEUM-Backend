@@ -3,8 +3,10 @@ import { CreateDiaryDto } from '../dto/request/create-diary.request';
 import { UpdateDiaryDto } from '../dto/request/update-diary.request';
 import { DiaryRepository } from 'src/diaries/domain/diary.repository';
 import { CreateDiaryResponse } from '../dto/response/create-diary.response';
-import { SearchOption } from '../../application/dto/request/search-option.request';
-import { SearchOptionResponse } from '../dto/response/search-option.response';
+import {
+  ReadDiariesResponse,
+  paginatedDiaries,
+} from '../dto/response/read-diaries.response';
 
 @Injectable()
 export class DiariesService {
@@ -24,13 +26,17 @@ export class DiariesService {
     return CreateDiaryResponse.fromEntity(foundedDiary);
   }
 
-  async findLists(query: SearchOption) {
-    const foundedDiaries = await this.diaryRepository.findLists(query);
-    return SearchOptionResponse.fromEntities(
-      foundedDiaries['foundDiaries'],
-      foundedDiaries['totalElements'],
-      foundedDiaries['totalPages'],
-      query,
+  async getPaginatedDiaries(page: number, elements: number) {
+    const foundedDiaries: Array<paginatedDiaries> =
+      await this.diaryRepository.getPaginatedDiaries(page, elements);
+
+    const totalElements: number = await this.diaryRepository.getAllDiaries();
+
+    return ReadDiariesResponse.fromEntities(
+      foundedDiaries,
+      totalElements,
+      page,
+      elements,
     );
   }
 }

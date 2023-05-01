@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { DiariesService } from '../../application/service/diaries.service';
 import { CreateDiaryDto } from '../../application/dto/request/create-diary.request';
@@ -15,7 +16,6 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateDiaryResponse } from '../../application/dto/response/create-diary.response';
 import { SingleSuccessResult } from '../../../common/response/success-response.format';
 import { FailureResult } from '../../../common/response/failure-response.format';
-import { SearchOption } from '../../application/dto/request/search-option.request';
 
 @Controller('api/diaries')
 export class DiariesController {
@@ -45,12 +45,15 @@ export class DiariesController {
   }
 
   @Get()
-  findLists(@Query() query: SearchOption) {
-    return this.diariesService.findLists(query);
+  async getPaginatedDiaries(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('elements', ParseIntPipe) elements: number,
+  ) {
+    return await this.diariesService.getPaginatedDiaries(page, elements);
   }
 
   @Get(':id')
-  findOne(@Param('id') diaryId: number) {
-    return this.diariesService.findOne(diaryId);
+  async findOne(@Param('id', ParseIntPipe) diaryId: number) {
+    return await this.diariesService.findOne(diaryId);
   }
 }
