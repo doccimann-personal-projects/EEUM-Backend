@@ -1,9 +1,10 @@
-import { AddressInfo, Gender, Role, Status, User } from '@prisma/client';
 import { PickType } from '@nestjs/swagger';
+import { CreateUserResponse } from './create-user.response';
+import { AddressInfo, User } from '@prisma/client';
 import { Address, BirthInfo, NameInfo } from './common/response.types';
 import { CommonUserResponse } from './common/common-user.response';
 
-export class CreateUserResponse extends PickType(CommonUserResponse, [
+export class ReadUserResponse extends PickType(CommonUserResponse, [
   'id',
   'email',
   'nameInfo',
@@ -17,34 +18,7 @@ export class CreateUserResponse extends PickType(CommonUserResponse, [
   'addressInfo',
   'createdAt',
 ] as const) {
-  constructor(
-    id: number,
-    email: string,
-    nameInfo: NameInfo,
-    nickname: string,
-    phoneNumber: string,
-    gender: Gender,
-    birthInfo: BirthInfo,
-    profilePhotoUrl: string | null,
-    role: Role,
-    status: Status,
-    addressInfo: Address,
-    createdAt: Date,
-  ) {
-    super();
-    this.id = id;
-    this.email = email;
-    this.nameInfo = nameInfo;
-    this.nickname = nickname;
-    this.phoneNumber = phoneNumber;
-    this.gender = gender;
-    this.birthInfo = birthInfo;
-    this.profilePhotoUrl = profilePhotoUrl;
-    this.role = role;
-    this.status = status;
-    this.addressInfo = addressInfo;
-    this.createdAt = createdAt;
-  }
+  /* 엔티티로부터 프로필 조회 dto를 추출하는 메소드 */
   static fromEntities(
     user: User,
     addressInfo: AddressInfo,

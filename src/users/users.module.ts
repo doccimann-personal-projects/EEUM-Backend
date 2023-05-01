@@ -7,6 +7,7 @@ import { AddressInfoDao } from './infrastructure/address-info.dao';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './presentation/jwt/jwt.strategy';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { PassportModule } from '@nestjs/passport';
       useClass: AddressInfoDao,
     },
     UserValidator,
+    JwtStrategy,
   ],
   exports: [UsersService],
 })
