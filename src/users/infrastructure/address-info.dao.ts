@@ -30,4 +30,16 @@ export class AddressInfoDao implements AddressInfoRepository {
       data: getAddressInfoSoftDeleteData(),
     });
   }
+
+  async update(
+    id: number,
+    updateData: Partial<AddressInfo>,
+  ): Promise<AddressInfo> {
+    return this.prismaService.addressInfo.update({
+      where: {
+        id: id,
+      },
+      data: updateData,
+    });
+  }
 }
