@@ -13,7 +13,7 @@ export class BoardDao implements BoardRepository {
     });
   }
 
-  async findById(boardId: number): Promise<Board> {
+  async findById(boardId: number): Promise<Board | null> {
     return this.prismaService.board.findFirst({
       where: {
         id: boardId,

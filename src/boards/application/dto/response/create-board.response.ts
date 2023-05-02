@@ -27,7 +27,7 @@ export class CreateBoardResponse {
     this.createdAt = createdAt;
   }
 
-  static fromEntities(board: Board): CreateBoardResponse {
+  static fromEntity(board: Board): CreateBoardResponse {
     const { id, userId, category, title, views, content, createdAt } = board;
 
     return new CreateBoardResponse(

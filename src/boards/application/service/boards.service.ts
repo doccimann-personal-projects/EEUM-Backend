@@ -14,25 +14,37 @@ export class BoardsService {
     private readonly prismaService: PrismaService,
   ) {}
 
+  async create(
+    createRequest: CreateBoardRequest,
+  ): Promise<CreateBoardResponse> {
+    return this.prismaService.$transaction(async () =>
+      this.createTransaction(createRequest),
+    );
+  }
+
+  async getDetailBoard(boardId: number): Promise<ReadBoardResponse | null> {
+    return this.prismaService.$transaction(async () =>
+      this.getDetailBoardTransaction(boardId),
+    );
+  }
+
   // 게시글 생성
-  async create(createRequest: CreateBoardRequest) {
+  private async createTransaction(
+    createRequest: CreateBoardRequest,
+  ): Promise<CreateBoardResponse> {
     const board = createRequest.toBoardEntity(BigInt(1111));
     const createdBoard = await this.boardRepository.create(board);
 
-    return CreateBoardResponse.fromEntities(createdBoard);
+    return CreateBoardResponse.fromEntity(createdBoard);
   }
 
   // 게시글 조회
-  async getBoardById(boardId: number) {
+  private async getDetailBoardTransaction(
+    boardId: number,
+  ): Promise<ReadBoardResponse | null> {
     const foundBoard = await this.boardRepository.findById(boardId);
-    return ReadBoardResponse.fromEntities(foundBoard);
+    return foundBoard ? ReadBoardResponse.fromEntities(foundBoard) : null;
   }
-
-  /*
-  async getBoardAll(page: PageRequest){
-    const total = await this.boardRepository.findLists(page);
-    return ReadBoardAllResponse.
-  }*/
 
   // 게시글 삭제
   async unregisterBoard(boardId: number) {

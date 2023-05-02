@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   UseFilters,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { BoardsService } from '../../application/service/boards.service';
 import { CreateBoardRequest } from '../../application/dto/request/create-board.request';
@@ -15,6 +16,7 @@ import { SingleSuccessResult } from '../../../common/response/success-response.f
 import { CreateBoardResponse } from '../../application/dto/response/create-board.response';
 import { FailureResult } from '../../../common/response/failure-response.format';
 
+@ApiTags('게시판')
 @Controller('api/boards')
 @UseFilters(HttpExceptionFilter)
 export class BoardsController {
@@ -41,12 +43,12 @@ export class BoardsController {
   }
 
   @Get('/:id')
-  getBoard(@Param('id') boardId: number) {
-    return this.boardsService.getBoardById(boardId);
+  getBoard(@Param('id', ParseIntPipe) boardId: number) {
+    return this.boardsService.getDetailBoard(boardId);
   }
 
   @Delete('/:id')
-  async unregister(@Param('id') boardId: number) {
+  async unregister(@Param('id', ParseIntPipe) boardId: number) {
     return await this.boardsService.unregisterBoard(boardId);
   }
 }
