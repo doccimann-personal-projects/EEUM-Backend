@@ -1,11 +1,15 @@
 import { Board } from '@prisma/client';
+import { PickType } from '@nestjs/swagger';
+import { CommonBoardResponse } from './common/common-board.response';
 
-export class DeleteBoardResponse {
-  id: number;
-  deletedAt: Date;
-  isDeleted: boolean;
-
+export class DeleteBoardResponse extends PickType(CommonBoardResponse, [
+  'id',
+  'deletedAt',
+  'isDeleted',
+] as const) {
   constructor(id: number, deletedAt: Date, isDeleted: boolean) {
+    super();
+
     this.id = id;
     this.deletedAt = deletedAt;
     this.isDeleted = isDeleted;

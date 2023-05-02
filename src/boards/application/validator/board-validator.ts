@@ -1,11 +1,14 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from '@nestjs/common';
 import { BoardRepository } from '../../domain/repository/board.repository';
 import { ValidationResult } from '../../../common/validation/validation.result';
 import { NotFoundException } from '../../../common/customExceptions/not-found.exception';
 
 @Injectable()
 export class BoardValidator {
-  constructor(@Inject('BoardRepository') private readonly boardRepository: BoardRepository) {}
+  constructor(
+    @Inject('BoardRepository')
+    private readonly boardRepository: BoardRepository,
+  ) {}
 
   // board가 삭제 가능한지 검증하는 메소드
   async isDeletable(boardId: number): Promise<ValidationResult> {
