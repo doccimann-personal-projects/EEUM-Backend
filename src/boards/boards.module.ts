@@ -4,9 +4,10 @@ import { BoardsController } from './presentation/controller/boards.controller';
 import { BoardDao } from './infrastructure/board.dao';
 import { PrismaModule } from '../prisma/prisma.module';
 import { BoardValidator } from './application/validator/board-validator';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, UsersModule],
   controllers: [BoardsController],
   providers: [
     BoardsService,

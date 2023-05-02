@@ -6,6 +6,7 @@ import { ReadBoardResponse } from '../dto/response/read-board.response';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { DeleteBoardResponse } from '../dto/response/delete-board.response';
 import { BoardValidator } from '../validator/board-validator';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class BoardsService {
@@ -19,9 +20,10 @@ export class BoardsService {
   // 게시글 생성
   async create(
     createRequest: CreateBoardRequest,
+    user: User,
   ): Promise<CreateBoardResponse> {
     return this.prismaService.$transaction(async () =>
-      this.createTransaction(createRequest),
+      this.createTransaction(createRequest, user),
     );
   }
 
@@ -33,16 +35,19 @@ export class BoardsService {
   }
 
   // 게시글 삭제
-  async deleteBoard(boardId: number): Promise<DeleteBoardResponse> {
+  async deleteBoard(user: User, boardId: number): Promise<DeleteBoardResponse> {
     return this.prismaService.$transaction(async () =>
-      this.deleteBoardTransaction(boardId),
+      this.deleteBoardTransaction(user, boardId),
     );
   }
 
   private async createTransaction(
     createRequest: CreateBoardRequest,
+    user: User,
   ): Promise<CreateBoardResponse> {
-    const board = createRequest.toBoardEntity(BigInt(1111));
+    console.log(user);
+
+    const board = createRequest.toBoardEntity(user.id);
     const createdBoard = await this.boardRepository.create(board);
 
     return CreateBoardResponse.fromEntity(createdBoard);
@@ -55,9 +60,12 @@ export class BoardsService {
     return foundBoard ? ReadBoardResponse.fromEntities(foundBoard) : null;
   }
 
-  async deleteBoardTransaction(boardId: number) {
+  async deleteBoardTransaction(user: User, boardId: number) {
     // 우선 삭제 가능한 상태인지 검증한다
-    const validationResult = await this.boardValidator.isDeletable(boardId);
+    const validationResult = await this.boardValidator.isDeletable(
+      user,
+      boardId,
+    );
 
     if (!validationResult.success) {
       throw validationResult.exception;

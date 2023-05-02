@@ -7,16 +7,27 @@ import {
   Param,
   UseFilters,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { BoardsService } from '../../application/service/boards.service';
 import { CreateBoardRequest } from '../../application/dto/request/create-board.request';
 import { HttpExceptionFilter } from '../../../common/filters/http-exception.filter';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { SingleSuccessResult } from '../../../common/response/success-response.format';
 import { CreateBoardResponse } from '../../application/dto/response/create-board.response';
 import { FailureResult } from '../../../common/response/failure-response.format';
 import { ReadBoardResponse } from '../../application/dto/response/read-board.response';
 import { DeleteBoardResponse } from '../../application/dto/response/delete-board.response';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthResult } from '../../../users/presentation/decorators/jwt-auth.result';
+import { UserRoleExistsPipe } from '../../../users/presentation/pipes/user-role.exists.pipe';
+import { User } from '@prisma/client';
+import { JwtAuthGuard } from '../../../users/presentation/guards/jwt-auth.guard';
 
 @ApiTags('게시판')
 @Controller('api/boards')
@@ -27,6 +38,7 @@ export class BoardsController {
   @ApiOperation({
     summary: '글 작성 API 입니다',
   })
+  @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
     description: '글작성 성공 응답입니다',
@@ -38,13 +50,22 @@ export class BoardsController {
     type: FailureResult,
   })
   @ApiResponse({
+    status: 401,
+    description: '유저가 올바르지 않아 글 작성에 실패합니다',
+    type: FailureResult,
+  })
+  @ApiResponse({
     status: 500,
     description: '내부 서버 에러입니다',
     type: FailureResult,
   })
   @Post()
-  async create(@Body() createRequest: CreateBoardRequest) {
-    return await this.boardsService.create(createRequest);
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @Body() createRequest: CreateBoardRequest,
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
+  ) {
+    return await this.boardsService.create(createRequest, user);
   }
 
   @ApiOperation({
@@ -72,6 +93,7 @@ export class BoardsController {
   @ApiOperation({
     summary: '게시글 삭제 API 입니다',
   })
+  @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
     description: '게시글 삭제 성공 응답입니다',
@@ -87,8 +109,12 @@ export class BoardsController {
     description: '내부 서버 에러입니다',
     type: FailureResult,
   })
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
-  async unregister(@Param('id', ParseIntPipe) boardId: number) {
-    return await this.boardsService.deleteBoard(boardId);
+  async deleteBoard(
+    @Param('id', ParseIntPipe) boardId: number,
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
+  ) {
+    return await this.boardsService.deleteBoard(user, boardId);
   }
 }
