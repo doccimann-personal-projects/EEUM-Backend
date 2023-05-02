@@ -17,6 +17,13 @@ export class CommonBoardResponse {
   userId: number;
 
   @ApiProperty({
+    description: '유저의 닉네임 값입니다',
+    example: 'Brian',
+    required: true,
+  })
+  authorName: string;
+
+  @ApiProperty({
     description: '게시판 카테고리 정보입니다',
     example: BoardCategory.RECIPE,
     required: true,

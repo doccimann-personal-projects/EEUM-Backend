@@ -1,5 +1,5 @@
 import { BoardRepository } from '../domain/repository/board.repository';
-import { Board } from '@prisma/client';
+import { Board, Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getCurrentUtcDate } from '../../common/utils/date-utils';
@@ -31,6 +31,30 @@ export class BoardDao implements BoardRepository {
         isDeleted: true,
         updatedAt: getCurrentUtcDate(),
         deletedAt: getCurrentUtcDate(),
+      },
+    });
+  }
+
+  async getTotalCount(): Promise<number> {
+    return this.prismaService.board.count({
+      where: {
+        isDeleted: false,
+      },
+    });
+  }
+
+  async getBoardsByPagination(
+    page: number,
+    elements: number,
+  ): Promise<Array<Board>> {
+    return this.prismaService.board.findMany({
+      skip: elements * (page - 1),
+      take: elements,
+      where: {
+        isDeleted: false,
+      },
+      orderBy: {
+        createdAt: Prisma.SortOrder.desc,
       },
     });
   }
