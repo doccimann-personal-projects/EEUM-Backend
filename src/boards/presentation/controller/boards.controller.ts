@@ -49,6 +49,6 @@ export class BoardsController {
 
   @Delete('/:id')
   async unregister(@Param('id', ParseIntPipe) boardId: number) {
-    return await this.boardsService.unregisterBoard(boardId);
+    return await this.boardsService.deleteBoard(boardId);
   }
 }

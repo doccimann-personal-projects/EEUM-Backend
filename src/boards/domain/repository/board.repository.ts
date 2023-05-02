@@ -4,7 +4,7 @@ export interface BoardRepository {
   // Board를 생성하는 메소드
   create(board: Omit<Board, 'id'>): Promise<Board>;
 
-  findById(id: number): Promise<Board | null>;
+  findAliveBoardById(id: number): Promise<Board | null>;
 
   deleteById(id: number): Promise<Board>;
 

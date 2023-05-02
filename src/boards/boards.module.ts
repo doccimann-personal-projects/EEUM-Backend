@@ -3,6 +3,7 @@ import { BoardsService } from './application/service/boards.service';
 import { BoardsController } from './presentation/controller/boards.controller';
 import { BoardDao } from './infrastructure/board.dao';
 import { PrismaModule } from '../prisma/prisma.module';
+import { BoardValidator } from './application/validator/board-validator';
 
 @Module({
   imports: [PrismaModule],
@@ -13,6 +14,7 @@ import { PrismaModule } from '../prisma/prisma.module';
       provide: 'BoardRepository',
       useClass: BoardDao,
     },
+    BoardValidator,
   ],
   exports: [BoardsService],
 })
