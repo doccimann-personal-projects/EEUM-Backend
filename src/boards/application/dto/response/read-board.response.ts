@@ -2,7 +2,7 @@ import { Board, BoardCategory } from '@prisma/client';
 import { PickType } from '@nestjs/swagger';
 import { CommonBoardResponse } from './common/common-board.response';
 
-export class CreateBoardResponse extends PickType(CommonBoardResponse, [
+export class ReadBoardResponse extends PickType(CommonBoardResponse, [
   'id',
   'userId',
   'category',
@@ -31,10 +31,10 @@ export class CreateBoardResponse extends PickType(CommonBoardResponse, [
     this.createdAt = createdAt;
   }
 
-  static fromEntity(board: Board): CreateBoardResponse {
+  static fromEntities(board: Board): ReadBoardResponse {
     const { id, userId, category, title, views, content, createdAt } = board;
 
-    return new CreateBoardResponse(
+    return new ReadBoardResponse(
       Number(id),
       Number(userId),
       category,

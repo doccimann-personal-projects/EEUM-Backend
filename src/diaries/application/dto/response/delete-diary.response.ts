@@ -12,7 +12,7 @@ export class DeleteDiaryResponse {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
-  isDeleted: Boolean;
+  isDeleted: boolean;
 
   constructor(
     id: number,
@@ -26,7 +26,7 @@ export class DeleteDiaryResponse {
     createdAt: Date,
     updatedAt: Date,
     deletedAt: Date,
-    isDeleted: Boolean,
+    isDeleted: boolean,
   ) {
     this.id = id;
     this.userId = userId;
