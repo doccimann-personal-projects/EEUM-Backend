@@ -4,9 +4,12 @@ import { BoardRepository } from '../../domain/repository/board.repository';
 import { CreateBoardResponse } from '../dto/response/create-board.response';
 import { ReadBoardResponse } from '../dto/response/read-board.response';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { DeleteBoardResponse } from '../dto/response/delete-board.response';
+import { Board, User } from '@prisma/client';
 import { BoardValidator } from '../validator/board-validator';
-import { User } from '@prisma/client';
+import { DeleteBoardResponse } from '../dto/response/delete-board.response';
+import { PaginatedBoardResponse } from '../dto/response/paginated-board.response';
+import { isValidPaginationRequest } from '../../../common/utils/pagination-utils';
+import { RequestNotValidException } from '../../../common/customExceptions/request-not-valid.exception';
 
 @Injectable()
 export class BoardsService {
@@ -41,13 +44,21 @@ export class BoardsService {
     );
   }
 
+  // 페이지네이션 기반으로 게시글 조회
+  async getPaginatedBoards(
+    page: number,
+    elements: number,
+  ): Promise<[Array<PaginatedBoardResponse>, number]> {
+    return this.prismaService.$transaction(async () =>
+      this.getPaginatedBoardsTransaction(page, elements),
+    );
+  }
+
   private async createTransaction(
     createRequest: CreateBoardRequest,
     user: User,
   ): Promise<CreateBoardResponse> {
-    console.log(user);
-
-    const board = createRequest.toBoardEntity(user.id);
+    const board = createRequest.toBoardEntity(user);
     const createdBoard = await this.boardRepository.create(board);
 
     return CreateBoardResponse.fromEntity(createdBoard);
@@ -57,7 +68,7 @@ export class BoardsService {
     boardId: number,
   ): Promise<ReadBoardResponse | null> {
     const foundBoard = await this.boardRepository.findAliveBoardById(boardId);
-    return foundBoard ? ReadBoardResponse.fromEntities(foundBoard) : null;
+    return foundBoard ? ReadBoardResponse.fromEntity(foundBoard) : null;
   }
 
   async deleteBoardTransaction(user: User, boardId: number) {
@@ -73,5 +84,30 @@ export class BoardsService {
 
     const deleteBoard = await this.boardRepository.deleteById(boardId);
     return DeleteBoardResponse.fromEntities(deleteBoard);
+  }
+
+  private async getPaginatedBoardsTransaction(
+    page: number,
+    elements: number,
+  ): Promise<[Array<PaginatedBoardResponse>, number]> {
+    // 페이지네이션 요청이 옳은지 검증
+    const isValidRequest = isValidPaginationRequest(page, elements);
+
+    if (!isValidRequest) {
+      throw new RequestNotValidException('요청이 올바르지 않습니다');
+    }
+
+    // 결과물들을 가져온다
+    const [boards, totalCount] = await Promise.all([
+      this.boardRepository.getBoardsByPagination(page, elements),
+      this.boardRepository.getTotalCount(),
+    ]);
+
+    // 결과물들을 응답 객체로 변환한다
+    const responseList = boards?.map((board) =>
+      PaginatedBoardResponse.fromEntity(board),
+    );
+
+    return [responseList, totalCount];
   }
 }

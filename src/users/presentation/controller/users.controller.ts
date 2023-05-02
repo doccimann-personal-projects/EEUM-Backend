@@ -25,7 +25,6 @@ import { LoginUserResponse } from '../../application/dto/response/login-user.res
 import { JwtAuthResult } from '../decorators/jwt-auth.result';
 import { UserRoleExistsPipe } from '../pipes/user-role.exists.pipe';
 import { ReadUserResponse } from '../../application/dto/response/read-user.response';
-import { AuthGuard } from '@nestjs/passport';
 import { User } from '@prisma/client';
 import { DeleteUserResponse } from '../../application/dto/response/delete-user.response';
 import { UpdateUserResponse } from '../../application/dto/response/update-user.response';

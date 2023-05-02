@@ -1,4 +1,4 @@
-import { Board, BoardCategory } from '@prisma/client';
+import { Board, BoardCategory, User } from '@prisma/client';
 import { IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -32,9 +32,10 @@ export class CreateBoardRequest {
   content: string;
 
   // entity로 변환하는 메소드
-  toBoardEntity(userId: bigint): Omit<Board, 'id'> {
+  toBoardEntity(user: User): Omit<Board, 'id'> {
     return {
-      userId: userId,
+      authorName: user.nickname,
+      userId: user.id,
       category: this.category,
       title: this.title,
       views: 0,

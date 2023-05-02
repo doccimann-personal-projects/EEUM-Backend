@@ -5,6 +5,7 @@ import { CommonBoardResponse } from './common/common-board.response';
 export class ReadBoardResponse extends PickType(CommonBoardResponse, [
   'id',
   'userId',
+  'authorName',
   'category',
   'views',
   'title',
@@ -14,6 +15,7 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
   constructor(
     id: number,
     userId: number,
+    authorName: string,
     category: BoardCategory,
     views: number,
     title: string,
@@ -24,6 +26,7 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
 
     this.id = id;
     this.userId = userId;
+    this.authorName = authorName;
     this.category = category;
     this.views = views;
     this.title = title;
@@ -31,12 +34,22 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
     this.createdAt = createdAt;
   }
 
-  static fromEntities(board: Board): ReadBoardResponse {
-    const { id, userId, category, title, views, content, createdAt } = board;
+  static fromEntity(board: Board): ReadBoardResponse {
+    const {
+      id,
+      userId,
+      authorName,
+      category,
+      title,
+      views,
+      content,
+      createdAt,
+    } = board;
 
     return new ReadBoardResponse(
       Number(id),
       Number(userId),
+      authorName,
       category,
       views,
       title,
