@@ -28,13 +28,16 @@ export class DiariesService {
   async findDiary(diaryId: number) {
     const foundedDiary = await this.diaryRepository.findDiary(BigInt(diaryId));
     const diary = ReadDiaryResponse.fromEntity(foundedDiary);
+    // id, emotion, createdAt
     diary['diaryEmotion'] =
       foundedDiary['diaryEmotionList'].length !== 0
-        ? diaryEmotions.fromEntity(foundedDiary['diaryEmotionList'][0])
+        ? diaryEmotions.fromEntity(foundedDiary['diaryEmotionList'])
         : null;
+    // id, foodName, createdAt
+    // 이후에 사진 URL로 변경 예정
     diary['recommendedFood'] =
       foundedDiary['recommendedFoodList'].length !== 0
-        ? recommendedFoods.fromEntity(foundedDiary['recommendedFoodList'][0])
+        ? recommendedFoods.fromEntity(foundedDiary['recommendedFoodList'])
         : null;
     return { diary };
   }

@@ -1,17 +1,26 @@
 export class diaryEmotions {
-  id: number;
-  emotion: string;
-  createdAt: Date;
+  diaryEmotionList: Array<toIntDiaryEmotions>;
 
-  constructor(id: number, emotion: string, createdAt: Date) {
-    this.id = id;
-    this.emotion = emotion;
-    this.createdAt = createdAt;
+  constructor(diaryEmotionList: Array<toIntDiaryEmotions>) {
+    this.diaryEmotionList = diaryEmotionList;
   }
 
-  static fromEntity(diaryEmotion: toDiaryEmotions) {
-    const { id, emotion, createdAt } = diaryEmotion;
-    return new diaryEmotions(Number(id), emotion, createdAt);
+  static fromEntity(
+    diaryEmotion: Array<toDiaryEmotions>,
+  ): Array<toIntDiaryEmotions> {
+    const diaryEmotionList: Array<toIntDiaryEmotions> = diaryEmotion.reduce(
+      (map: Array<toIntDiaryEmotions>, value: toDiaryEmotions) => {
+        const obj: toIntDiaryEmotions = {
+          id: Number(value['id']),
+          emotion: value['emotion'],
+          createdAt: value['createdAt'],
+        };
+        map.push(obj);
+        return map;
+      },
+      [],
+    );
+    return diaryEmotionList;
   }
 }
 
@@ -22,7 +31,7 @@ export interface toDiaryEmotions {
 }
 
 export interface toIntDiaryEmotions {
-  emotionId: number;
+  id: number;
   emotion: string;
   createdAt: Date;
 }

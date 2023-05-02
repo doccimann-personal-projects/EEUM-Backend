@@ -1,7 +1,38 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class ReadDiariesResponse {
+  @ApiProperty({
+    description: '현재 목록에 페이지 값입니다.',
+    example: 1,
+    required: true,
+  })
   page: number;
+
+  @ApiProperty({
+    description: '현 페이지에서 보일 목록의 개수입니다.',
+    example: 1,
+    required: true,
+  })
   elements: number;
+
+  @ApiProperty({
+    description: '일기 목록의 총 개수입니다.',
+    example: 1,
+    required: true,
+  })
   totalElements: number;
+
+  @ApiProperty({
+    description: '목록에서 보일 일기의 간략한 내용입니다.',
+    example: {
+      id: 1,
+      title: '좋은 하루',
+      publishedDate: '2020-04-21',
+      diaryEmotion: '기쁨',
+      recommendedFood: '햄버거',
+    },
+    required: true,
+  })
   diaries: Array<toIntPaginatedDiaries>;
 
   constructor(

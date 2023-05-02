@@ -17,21 +17,6 @@ export class CreateDiaryResponse {
   userId: number;
 
   @ApiProperty({
-    description:
-      '일기의 내용을 통해 감정을 분석하고 추출된 감정에 따라 추천해주는 음식들의 리스트입니다.',
-    example: [],
-    required: true,
-  })
-  recommendedFoodList: Array<RecommendedFood>;
-
-  @ApiProperty({
-    description: '일기의 내용을 토대로 감정을 분석하여 추출한 리스트입니다.',
-    example: [],
-    required: true,
-  })
-  diaryEmotionList: Array<DiaryEmotion>;
-
-  @ApiProperty({
     description: '100자 이내로 일기 제목을 작성해주세요.',
     example: '행복한 하루',
     required: true,
@@ -69,8 +54,6 @@ export class CreateDiaryResponse {
   constructor(
     id: number,
     userId: number,
-    recommendedFoodList: Array<RecommendedFood>,
-    diaryEmotionList: Array<DiaryEmotion>,
     title: string,
     content: string,
     weather: string,
@@ -79,8 +62,6 @@ export class CreateDiaryResponse {
   ) {
     this.id = id;
     this.userId = userId;
-    this.recommendedFoodList = recommendedFoodList;
-    this.diaryEmotionList = diaryEmotionList;
     this.title = title;
     this.content = content;
     this.weather = weather;
@@ -92,15 +73,9 @@ export class CreateDiaryResponse {
     const { id, userId, title, content, weather, publishedDate, createdAt } =
       diary;
 
-    // 추후에 감정분석과 연계돼서 작성 예정
-    const recommendedFoodList: Array<RecommendedFood> = [];
-    const diaryEmotionList: Array<DiaryEmotion> = [];
-
     return new CreateDiaryResponse(
       Number(id),
       Number(userId),
-      recommendedFoodList,
-      diaryEmotionList,
       title,
       content,
       weather,
