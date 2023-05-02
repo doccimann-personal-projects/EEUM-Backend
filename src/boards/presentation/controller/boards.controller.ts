@@ -28,7 +28,7 @@ import { User } from '@prisma/client';
 import { JwtAuthGuard } from '../../../users/presentation/guards/jwt-auth.guard';
 import { DeleteBoardResponse } from '../../application/dto/response/delete-board.response';
 import { ResultFactory } from '../../../common/response/result.factory';
-import { PaginatedBoardResponse } from "../../application/dto/response/paginated-board.response";
+import { PaginatedBoardResponse } from '../../application/dto/response/paginated-board.response';
 
 @ApiTags('게시판')
 @Controller('api/boards')
@@ -129,7 +129,8 @@ export class BoardsController {
   })
   @ApiResponse({
     status: 204,
-    description: '게시글 조회에는 성공했으나, 조회된 게시물이 없는 경우의 응답입니다',
+    description:
+      '게시글 조회에는 성공했으나, 조회된 게시물이 없는 경우의 응답입니다',
   })
   @ApiResponse({
     status: 400,
