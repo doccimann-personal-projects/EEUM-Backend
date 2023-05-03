@@ -1,17 +1,27 @@
 export class recommendedFoods {
-  id: number;
-  emotion: string;
-  createdAt: Date;
+  recommendedFoodList: Array<toIntRecommendedFoods>;
 
-  constructor(id: number, emotion: string, createdAt: Date) {
-    this.id = id;
-    this.emotion = emotion;
-    this.createdAt = createdAt;
+  constructor(recommendedFoodList: Array<toIntRecommendedFoods>) {
+    this.recommendedFoodList = recommendedFoodList;
   }
 
-  static fromEntity(diaryEmotion: toRecommendedFoods) {
-    const { id, foodName, createdAt } = diaryEmotion;
-    return new recommendedFoods(Number(id), foodName, createdAt);
+  static fromEntity(
+    recommendedFood: Array<toRecommendedFoods>,
+  ): Array<toIntRecommendedFoods> {
+    const recommendedFoodList: Array<toIntRecommendedFoods> =
+      recommendedFood.reduce(
+        (map: Array<toIntRecommendedFoods>, value: toRecommendedFoods) => {
+          const obj: toIntRecommendedFoods = {
+            id: Number(value['id']),
+            foodName: value['foodName'],
+            createdAt: value['createdAt'],
+          };
+          map.push(obj);
+          return map;
+        },
+        [],
+      );
+    return recommendedFoodList;
   }
 }
 
@@ -22,7 +32,7 @@ export interface toRecommendedFoods {
 }
 
 export interface toIntRecommendedFoods {
-  foodId: number;
+  id: number;
   foodName: string;
   createdAt: Date;
 }

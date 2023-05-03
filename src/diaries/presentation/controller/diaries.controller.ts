@@ -17,7 +17,12 @@ import { CreateDiaryResponse } from '../../application/dto/response/create-diary
 import { SingleSuccessResult } from '../../../common/response/success-response.format';
 import { FailureResult } from '../../../common/response/failure-response.format';
 import { ResultFactory } from 'src/common/response/result.factory';
-import { toIntPaginatedDiaries } from 'src/diaries/application/dto/response/read-diaries.response';
+import {
+  ReadDiariesResponse,
+  toIntPaginatedDiaries,
+} from 'src/diaries/application/dto/response/read-diaries.response';
+import { ReadDiaryResponse } from 'src/diaries/application/dto/response/read-diary.response';
+import { DeleteDiaryResponse } from 'src/diaries/application/dto/response/delete-diary.response';
 
 @Controller('api/diaries')
 export class DiariesController {
@@ -49,6 +54,24 @@ export class DiariesController {
     return await this.diariesService.create(createDiaryDto);
   }
 
+  @ApiOperation({
+    summary: '자신의 일기 목록을 조회합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '일기 목록 조회 성공 응답입니다.',
+    type: ReadDiariesResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '실패 응답입니다',
+    type: FailureResult,
+  })
+  @ApiResponse({
+    status: 500,
+    description: '내부 서버 에러입니다',
+    type: FailureResult,
+  })
   // 자신의 일기 목록 조회
   @Get()
   async getPaginatedDiaries(
@@ -67,12 +90,48 @@ export class DiariesController {
     );
   }
 
+  @ApiOperation({
+    summary: '자신의 일기를 상세 조회합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '일기 상세 조회 성공 응답입니다.',
+    type: ReadDiaryResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '실패 응답입니다',
+    type: FailureResult,
+  })
+  @ApiResponse({
+    status: 500,
+    description: '내부 서버 에러입니다',
+    type: FailureResult,
+  })
   // 일기 상세조회
   @Get(':id')
   async findDiary(@Param('id', ParseIntPipe) diaryId: number) {
     return await this.diariesService.findDiary(diaryId);
   }
 
+  @ApiOperation({
+    summary: '자신의 일기를 삭제합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '일기 삭제 성공 응답입니다.',
+    type: DeleteDiaryResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '실패 응답입니다',
+    type: FailureResult,
+  })
+  @ApiResponse({
+    status: 500,
+    description: '내부 서버 에러입니다',
+    type: FailureResult,
+  })
   // 일기 삭제
   @Delete(':id')
   async deleteDiary(@Param('id', ParseIntPipe) diaryId: number) {
