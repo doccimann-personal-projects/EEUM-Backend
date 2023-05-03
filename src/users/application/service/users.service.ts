@@ -4,7 +4,6 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../dto/jwt-payload';
 import { Status, User } from '@prisma/client';
-import { ResourceDuplicatedException } from '../../../common/customExceptions/resource-duplicated.exception';
 import { NotFoundException } from '../../../common/customExceptions/not-found.exception';
 import { CreateUserRequest } from '../dto/request/create-user.request';
 import { CreateUserResponse } from '../dto/response/create-user.response';
@@ -199,11 +198,7 @@ export class UsersService {
     updateRequest: UpdateUserRequest,
   ): Promise<UpdateUserResponse> {
     // 업데이트 가능한지 검증
-    const validationResult = await this.userValidator.isUpdatable(
-      user,
-      userId,
-      updateRequest,
-    );
+    const validationResult = await this.userValidator.isUpdatable(user, userId);
 
     if (!validationResult.success) {
       throw validationResult.exception;

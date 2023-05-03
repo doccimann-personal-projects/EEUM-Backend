@@ -25,11 +25,11 @@ import { LoginUserResponse } from '../../application/dto/response/login-user.res
 import { JwtAuthResult } from '../decorators/jwt-auth.result';
 import { UserRoleExistsPipe } from '../pipes/user-role.exists.pipe';
 import { ReadUserResponse } from '../../application/dto/response/read-user.response';
-import { AuthGuard } from '@nestjs/passport';
 import { User } from '@prisma/client';
 import { DeleteUserResponse } from '../../application/dto/response/delete-user.response';
 import { UpdateUserResponse } from '../../application/dto/response/update-user.response';
 import { UpdateUserRequest } from '../../application/dto/request/update-user.request';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @ApiTags('인증/인가')
 @Controller('api/users')
@@ -102,7 +102,7 @@ export class UsersController {
     description: '내부 서버 에러입니다',
     type: FailureResult,
   })
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Post('/:id/profile')
   async getProfile(
     @Param('id', ParseIntPipe) userId: number,
@@ -130,7 +130,7 @@ export class UsersController {
     description: '내부 서버 에러입니다',
     type: FailureResult,
   })
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   async unregister(
     @Param('id', ParseIntPipe) userId: number,
@@ -163,7 +163,7 @@ export class UsersController {
     description: '내부 서버 에러입니다',
     type: FailureResult,
   })
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Put('/:id')
   async update(
     @Param('id', ParseIntPipe) userId: number,

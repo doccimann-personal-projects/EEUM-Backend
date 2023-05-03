@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { UserRepository } from '../../domain/repository/user.repository';
 import { CreateUserRequest } from '../dto/request/create-user.request';
 import { ValidationResult } from '../../../common/validation/validation.result';
-import { UpdateUserRequest } from '../dto/request/update-user.request';
 import { User } from '@prisma/client';
 import { ResourceDuplicatedException } from '../../../common/customExceptions/resource-duplicated.exception';
 import { NotAuthorizedException } from '../../../common/customExceptions/not-authorized.exception';
@@ -43,11 +42,7 @@ export class UserValidator {
   }
 
   // 수정 가능한 요청인지 검증하는 메소드
-  async isUpdatable(
-    user: User,
-    userId: number,
-    updateRequest: UpdateUserRequest,
-  ): Promise<ValidationResult> {
+  async isUpdatable(user: User, userId: number): Promise<ValidationResult> {
     // 1. user의 id와 userId가 일치하는가?
     if (Number(user.id) !== userId) {
       return ValidationResult.getFailureResult(
