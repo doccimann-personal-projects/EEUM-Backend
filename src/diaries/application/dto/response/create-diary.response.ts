@@ -1,4 +1,4 @@
-import { Diary, DiaryEmotion, RecommendedFood } from '@prisma/client';
+import { Diary } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDiaryResponse {

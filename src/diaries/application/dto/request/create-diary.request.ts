@@ -2,7 +2,7 @@ import { IsString, IsNotEmpty, MaxLength, IsOptional } from 'class-validator';
 import { Diary } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateDiaryDto {
+export class CreateDiaryRequest {
   @ApiProperty({
     description: '100자 이내로 일기 제목을 작성해주세요.',
     example: '행복한 하루',

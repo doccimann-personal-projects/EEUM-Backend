@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateDiaryDto } from '../dto/request/create-diary.request';
+import { CreateDiaryRequest } from '../dto/request/create-diary.request';
 import { UpdateDiaryDto } from '../dto/request/update-diary.request';
 import { DiaryRepository } from 'src/diaries/domain/diary.repository';
 import { CreateDiaryResponse } from '../dto/response/create-diary.response';
@@ -11,6 +11,7 @@ import { ReadDiaryResponse } from '../dto/response/read-diary.response';
 import { DeleteDiaryResponse } from '../dto/response/delete-diary.response';
 import { diaryEmotions } from '../dto/emotion-number';
 import { recommendedFoods } from '../dto/recommendedFood-number';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class DiariesService {
@@ -18,9 +19,11 @@ export class DiariesService {
     @Inject('DiaryRepository')
     private readonly diaryRepository: DiaryRepository,
   ) {}
-  async create(createDiaryDto: CreateDiaryDto): Promise<CreateDiaryResponse> {
-    // userId 로그인 구현 전 임의로 넣어놓은 userId
-    const diary = createDiaryDto.toDiaryEntity(BigInt(1));
+  async create(
+    user: User,
+    createDiaryDto: CreateDiaryRequest,
+  ): Promise<CreateDiaryResponse> {
+    const diary = createDiaryDto.toDiaryEntity(user.id);
     const createdDiary = await this.diaryRepository.create(diary);
     return CreateDiaryResponse.fromEntity(createdDiary);
   }
@@ -42,7 +45,7 @@ export class DiariesService {
     return { diary };
   }
 
-  async getPaginatedDiaries(userId: number, page: number, elements: number) {
+  async getPaginatedDiaries(userId: bigint, page: number, elements: number) {
     const foundedDiaries: Array<paginatedDiaries> =
       await this.diaryRepository.getPaginatedDiaries(userId, page, elements);
 

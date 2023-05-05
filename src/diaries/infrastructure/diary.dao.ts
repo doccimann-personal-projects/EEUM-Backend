@@ -38,13 +38,14 @@ export class DiaryDao implements DiaryRepository {
   }
 
   async getPaginatedDiaries(
-    userId: number,
+    userId: bigint,
     page: number,
     elements: number,
   ): Promise<Array<paginatedDiaries>> {
     return await this.prismaService.diary.findMany({
       where: {
         userId: userId,
+        isDeleted: Boolean(0),
       },
       skip: elements * (page - 1),
       take: elements,
@@ -62,6 +63,9 @@ export class DiaryDao implements DiaryRepository {
             emotion: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
   }
