@@ -20,10 +20,11 @@ export class DiariesService {
     private readonly diaryRepository: DiaryRepository,
   ) {}
   async create(
-    user: User,
+    // user: User,
     createDiaryDto: CreateDiaryRequest,
   ): Promise<CreateDiaryResponse> {
-    const diary = createDiaryDto.toDiaryEntity(user.id);
+    // const diary = createDiaryDto.toDiaryEntity(user.id);
+    const diary = createDiaryDto.toDiaryEntity(BigInt(1));
     const createdDiary = await this.diaryRepository.create(diary);
     return CreateDiaryResponse.fromEntity(createdDiary);
   }
