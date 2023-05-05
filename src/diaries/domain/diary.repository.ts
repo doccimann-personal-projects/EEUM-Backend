@@ -10,7 +10,7 @@ export interface DiaryRepository {
   findDiary(diaryId: bigint): Promise<diaryDetails>;
 
   getPaginatedDiaries(
-    userId: number,
+    userId: bigint,
     page: number,
     elements: number,
   ): Promise<Array<paginatedDiaries>>;

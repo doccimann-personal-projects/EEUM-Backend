@@ -5,9 +5,16 @@ import { UsersModule } from './users/users.module';
 import { BoardsModule } from './boards/boards.module';
 import { ConfigModule } from '@nestjs/config';
 import { DiariesModule } from './diaries/diaries.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
-  imports: [UsersModule, DiariesModule, BoardsModule, ConfigModule.forRoot()],
+  imports: [
+    UsersModule,
+    DiariesModule,
+    BoardsModule,
+    CommentsModule,
+    ConfigModule.forRoot(),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

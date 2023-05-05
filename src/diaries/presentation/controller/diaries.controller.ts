@@ -8,9 +8,10 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { DiariesService } from '../../application/service/diaries.service';
-import { CreateDiaryDto } from '../../application/dto/request/create-diary.request';
+import { CreateDiaryRequest } from '../../application/dto/request/create-diary.request';
 import { UpdateDiaryDto } from '../../application/dto/request/update-diary.request';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateDiaryResponse } from '../../application/dto/response/create-diary.response';
@@ -23,6 +24,10 @@ import {
 } from 'src/diaries/application/dto/response/read-diaries.response';
 import { ReadDiaryResponse } from 'src/diaries/application/dto/response/read-diary.response';
 import { DeleteDiaryResponse } from 'src/diaries/application/dto/response/delete-diary.response';
+import { JwtAuthGuard } from 'src/users/presentation/guards/jwt-auth.guard';
+import { JwtAuthResult } from 'src/users/presentation/decorators/jwt-auth.result';
+import { UserRoleExistsPipe } from 'src/users/presentation/pipes/user-role.exists.pipe';
+import { User } from '@prisma/client';
 
 @Controller('api/diaries')
 export class DiariesController {
@@ -47,11 +52,13 @@ export class DiariesController {
     type: FailureResult,
   })
   // 일기 작성
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
-    @Body() createDiaryDto: CreateDiaryDto,
+    @Body() createDiaryDto: CreateDiaryRequest,
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
   ): Promise<CreateDiaryResponse> {
-    return await this.diariesService.create(createDiaryDto);
+    return await this.diariesService.create(user, createDiaryDto);
   }
 
   @ApiOperation({
@@ -73,15 +80,15 @@ export class DiariesController {
     type: FailureResult,
   })
   // 자신의 일기 목록 조회
+  @UseGuards(JwtAuthGuard)
   @Get()
   async getPaginatedDiaries(
     @Query('page', ParseIntPipe) page: number,
     @Query('elements', ParseIntPipe) elements: number,
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
   ) {
-    // 임의로 넣은 userId
-    const userId = 1;
     const { totalElements, diaries } =
-      await this.diariesService.getPaginatedDiaries(userId, page, elements);
+      await this.diariesService.getPaginatedDiaries(user.id, page, elements);
     return ResultFactory.getPaginatedSuccessResult<toIntPaginatedDiaries>(
       totalElements,
       page,
@@ -109,6 +116,7 @@ export class DiariesController {
     type: FailureResult,
   })
   // 일기 상세조회
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findDiary(@Param('id', ParseIntPipe) diaryId: number) {
     return await this.diariesService.findDiary(diaryId);
@@ -133,6 +141,7 @@ export class DiariesController {
     type: FailureResult,
   })
   // 일기 삭제
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteDiary(@Param('id', ParseIntPipe) diaryId: number) {
     return await this.diariesService.deleteDiary(diaryId);
