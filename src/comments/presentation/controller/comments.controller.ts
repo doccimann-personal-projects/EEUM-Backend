@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
 import { CommentsService } from '../../application/service/comments.service';
@@ -16,7 +17,7 @@ import { JwtAuthResult } from 'src/users/presentation/decorators/jwt-auth.result
 import { UserRoleExistsPipe } from 'src/users/presentation/pipes/user-role.exists.pipe';
 import { User } from '@prisma/client';
 
-@Controller('api/comments')
+@Controller('api/boards/:boardId/comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
@@ -24,8 +25,10 @@ export class CommentsController {
   @Post()
   async create(
     @Body() createComment: CreateCommentRequest,
-    @JwtAuthResult(UserRoleExistsPipe) user: User,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @JwtAuthResult(UserRoleExistsPipe)
+    user: User,
   ) {
-    return this.commentsService.create(createComment, user);
+    return this.commentsService.create(createComment, user, boardId);
   }
 }

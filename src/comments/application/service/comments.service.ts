@@ -11,9 +11,12 @@ export class CommentsService {
     @Inject('CommentRepository')
     private readonly commentRepository: CommentRepository,
   ) {}
-  async create(createComment: CreateCommentRequest, user: User) {
-    const boardId = BigInt(1);
-    const comment = createComment.toCommentEntity(user.id, boardId);
+  async create(
+    createComment: CreateCommentRequest,
+    user: User,
+    boardId: number,
+  ) {
+    const comment = createComment.toCommentEntity(user.id, BigInt(boardId));
     const createdComment = await this.commentRepository.create(comment);
     return CreateCommentResponse.fromEntity(createdComment);
   }
