@@ -1,5 +1,6 @@
 import { BoardCategory } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
+import { toIntCommentInfo } from '../read-board.response';
 
 export class CommonBoardResponse {
   @ApiProperty({
@@ -78,4 +79,8 @@ export class CommonBoardResponse {
     required: true,
   })
   isDeleted: boolean;
+
+  commentCount: number;
+
+  commentList: Array<toIntCommentInfo>;
 }

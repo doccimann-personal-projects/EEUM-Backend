@@ -11,6 +11,7 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
   'title',
   'content',
   'createdAt',
+  'commentList',
 ] as const) {
   constructor(
     id: number,
@@ -21,6 +22,7 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
     title: string,
     content: string,
     createdAt: Date,
+    commentList: Array<toIntCommentInfo>,
   ) {
     super();
 
@@ -32,9 +34,10 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
     this.title = title;
     this.content = content;
     this.createdAt = createdAt;
+    this.commentList = commentList;
   }
 
-  static fromEntity(board: Board): ReadBoardResponse {
+  static fromEntity(board: commentBoard): ReadBoardResponse {
     const {
       id,
       userId,
@@ -44,7 +47,21 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
       views,
       content,
       createdAt,
+      commentList,
     } = board;
+
+    const commentLists: Array<toIntCommentInfo> = commentList.reduce(
+      (map: Array<toIntCommentInfo>, value: commentInfo) => {
+        const obj = {
+          id: Number(value['id']),
+          content: value['content'],
+          createdAt: value['createdAt'],
+        };
+        map.push(obj);
+        return map;
+      },
+      [],
+    );
 
     return new ReadBoardResponse(
       Number(id),
@@ -55,6 +72,32 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
       title,
       content,
       createdAt,
+      commentLists,
     );
   }
+}
+
+export interface commentBoard {
+  id: bigint;
+  userId: bigint;
+  authorName: string;
+  category: BoardCategory;
+  views: number;
+  title: string;
+  content: string;
+  createdAt: Date;
+  commentList: Array<commentInfo>;
+  isDeleted: Boolean;
+}
+
+export interface toIntCommentInfo {
+  id: number;
+  content: string;
+  createdAt: Date;
+}
+
+export interface commentInfo {
+  id: bigint;
+  content: string;
+  createdAt: Date;
 }

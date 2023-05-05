@@ -110,4 +110,9 @@ export class BoardsService {
 
     return [responseList, totalCount];
   }
+
+  // 게시물의 commentCount를 증가시킴
+  async increaseCommentCount(id: number, counts: number) {
+    return this.boardRepository.increaseCommentCount(id, counts);
+  }
 }
