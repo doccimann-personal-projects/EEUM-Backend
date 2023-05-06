@@ -52,13 +52,14 @@ export class DiariesController {
     type: FailureResult,
   })
   // 일기 작성
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post()
   async create(
     @Body() createDiaryDto: CreateDiaryRequest,
-    @JwtAuthResult(UserRoleExistsPipe) user: User,
+    // @JwtAuthResult(UserRoleExistsPipe) user: User,
   ): Promise<CreateDiaryResponse> {
-    return await this.diariesService.create(user, createDiaryDto);
+    // return await this.diariesService.create(user, createDiaryDto);
+    return await this.diariesService.create(createDiaryDto);
   }
 
   @ApiOperation({
@@ -80,15 +81,16 @@ export class DiariesController {
     type: FailureResult,
   })
   // 자신의 일기 목록 조회
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get()
   async getPaginatedDiaries(
     @Query('page', ParseIntPipe) page: number,
     @Query('elements', ParseIntPipe) elements: number,
-    @JwtAuthResult(UserRoleExistsPipe) user: User,
+    // @JwtAuthResult(UserRoleExistsPipe) user: User,
   ) {
     const { totalElements, diaries } =
-      await this.diariesService.getPaginatedDiaries(user.id, page, elements);
+      await this.diariesService.getPaginatedDiaries(BigInt(1), page, elements);
+    // await this.diariesService.getPaginatedDiaries(user.id, page, elements);
     return ResultFactory.getPaginatedSuccessResult<toIntPaginatedDiaries>(
       totalElements,
       page,
@@ -116,7 +118,7 @@ export class DiariesController {
     type: FailureResult,
   })
   // 일기 상세조회
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findDiary(@Param('id', ParseIntPipe) diaryId: number) {
     return await this.diariesService.findDiary(diaryId);
@@ -141,7 +143,7 @@ export class DiariesController {
     type: FailureResult,
   })
   // 일기 삭제
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteDiary(@Param('id', ParseIntPipe) diaryId: number) {
     return await this.diariesService.deleteDiary(diaryId);
