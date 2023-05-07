@@ -13,17 +13,20 @@ export class CommentDao implements CommentRepository {
     });
   }
 
-  async findComment(boardId: bigint): Promise<Array<Comment>> {
-    return this.prismaService.comment.findMany({
-      where: {
-        boardId: boardId,
-      },
+  async commentCount(boardId: number): Promise<number> {
+    return this.prismaService.comment.count({
+      where: { boardId: BigInt(boardId), isDeleted: Boolean(0) },
     });
   }
 
-  async commentCount(boardId: number): Promise<number> {
-    return this.prismaService.comment.count({
-      where: { boardId: BigInt(boardId) },
+  async deleteComment(commentId: number): Promise<Comment> {
+    return this.prismaService.comment.update({
+      where: { id: BigInt(commentId) },
+      data: {
+        updatedAt: new Date(),
+        deletedAt: new Date(),
+        isDeleted: Boolean(1),
+      },
     });
   }
 }

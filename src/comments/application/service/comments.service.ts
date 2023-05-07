@@ -4,11 +4,8 @@ import { UpdateCommentDto } from '../dto/request/update-comment.request';
 import { CommentRepository } from 'src/comments/domain/comment.repository';
 import { User } from '@prisma/client';
 import { CreateCommentResponse } from '../dto/response/create-comment.response';
-import {
-  ReadCommentResponse,
-  commentInfo,
-} from '../dto/response/read-comment.response';
 import { BoardsService } from 'src/boards/application/service/boards.service';
+import { DeleteCommentResponse } from '../dto/response/delete-comment.response';
 
 @Injectable()
 export class CommentsService {
@@ -28,13 +25,19 @@ export class CommentsService {
       await this.commentRepository.create(comment),
       await this.commentRepository.commentCount(boardId),
     ]);
-    this.BoardsService.increaseCommentCount(boardId, commentCounts);
+    this.BoardsService.updateCommentCount(boardId, commentCounts);
     return CreateCommentResponse.fromEntity(createdComment);
   }
 
-  async findComment(
-    comments: Array<commentInfo>,
-  ): Promise<ReadCommentResponse> {
-    return ReadCommentResponse.fromEntity(comments);
+  async deleteComment(
+    boardId: number,
+    commentId: number,
+  ): Promise<DeleteCommentResponse> {
+    const [deletedComment, commentCounts] = await Promise.all([
+      await this.commentRepository.deleteComment(commentId),
+      await this.commentRepository.commentCount(boardId),
+    ]);
+    this.BoardsService.updateCommentCount(boardId, commentCounts);
+    return DeleteCommentResponse.fromEntity(deletedComment);
   }
 }

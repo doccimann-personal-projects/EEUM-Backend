@@ -21,7 +21,9 @@ export class BoardDao implements BoardRepository {
         isDeleted: false,
       },
       include: {
-        commentList: true,
+        commentList: {
+          where: { isDeleted: Boolean(0) },
+        },
       },
     });
   }
@@ -63,7 +65,7 @@ export class BoardDao implements BoardRepository {
     });
   }
 
-  increaseCommentCount(id: number, counts: number): Promise<Board> {
+  updateCommentCount(id: number, counts: number): Promise<Board> {
     return this.prismaService.board.update({
       where: { id: id },
       data: { commentCount: counts },
