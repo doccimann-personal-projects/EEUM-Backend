@@ -56,7 +56,7 @@ export class DeleteCommentResponse {
     example: Boolean(0),
     required: true,
   })
-  isDeleted: Boolean;
+  isDeleted: boolean;
 
   constructor(
     id: number,
@@ -66,7 +66,7 @@ export class DeleteCommentResponse {
     createdAt: Date,
     updatedAt: Date,
     deletedAt: Date,
-    isDeleted: Boolean,
+    isDeleted: boolean,
   ) {
     this.id = id;
     this.userId = userId;
