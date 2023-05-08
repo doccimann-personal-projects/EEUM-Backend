@@ -6,6 +6,7 @@ import { BoardsModule } from './boards/boards.module';
 import { ConfigModule } from '@nestjs/config';
 import { DiariesModule } from './diaries/diaries.module';
 import { CommentsModule } from './comments/comments.module';
+import { MessagingModule } from './messaging/messaging.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CommentsModule } from './comments/comments.module';
     BoardsModule,
     CommentsModule,
     ConfigModule.forRoot(),
+    MessagingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

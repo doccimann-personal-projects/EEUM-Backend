@@ -12,21 +12,26 @@ import { DeleteDiaryResponse } from '../dto/response/delete-diary.response';
 import { diaryEmotions } from '../dto/emotion-number';
 import { recommendedFoods } from '../dto/recommendedFood-number';
 import { User } from '@prisma/client';
+import { MessageProducer } from '../../../messaging/message.producer';
+import { DiaryMessageProducer } from '../producer/diary-message.producer';
+import { DiaryCreatedMessage } from '../../../boards/application/dto/message/diary-created.message';
+import { PrismaService } from '../../../prisma/prisma.service';
 
 @Injectable()
 export class DiariesService {
   constructor(
     @Inject('DiaryRepository')
     private readonly diaryRepository: DiaryRepository,
+    private readonly diaryMessageProducer: DiaryMessageProducer,
+    private readonly prismaService: PrismaService,
   ) {}
   async create(
     // user: User,
-    createDiaryDto: CreateDiaryRequest,
+    createDiaryRequest: CreateDiaryRequest,
   ): Promise<CreateDiaryResponse> {
-    // const diary = createDiaryDto.toDiaryEntity(user.id);
-    const diary = createDiaryDto.toDiaryEntity(BigInt(1));
-    const createdDiary = await this.diaryRepository.create(diary);
-    return CreateDiaryResponse.fromEntity(createdDiary);
+    return this.prismaService.$transaction(async () =>
+      this.getCreateTransaction(createDiaryRequest),
+    );
   }
 
   async findDiary(diaryId: number) {
@@ -65,5 +70,21 @@ export class DiariesService {
     await this.diaryRepository.deleteFood(BigInt(diaryId));
     const deletedDiary = await this.diaryRepository.deleteDiary(diaryId);
     return DeleteDiaryResponse.fromEntity(deletedDiary);
+  }
+
+  // 일기 생성에 대한 트랜잭션을 처리하는 메소드
+  async getCreateTransaction(
+    createDiaryRequest: CreateDiaryRequest,
+  ): Promise<CreateDiaryResponse> {
+    // const diary = createDiaryRequest.toDiaryEntity(user.id);
+    const diary = createDiaryRequest.toDiaryEntity(BigInt(1));
+    const createdDiary = await this.diaryRepository.create(diary);
+
+    // 일기 생성 이후, 일기 생성에 대한 메시지를 발행한다
+    const createdMessage = DiaryCreatedMessage.fromEntity(createdDiary);
+    await this.diaryMessageProducer.produceCreatedMessage(createdMessage);
+
+    // 응답 dto 반환
+    return CreateDiaryResponse.fromEntity(createdDiary);
   }
 }
