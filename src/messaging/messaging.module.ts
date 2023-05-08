@@ -16,7 +16,13 @@ AWS.config.update({
     SqsModule.registerAsync({
       useFactory: () => ({
         consumers: [],
-        producers: [],
+        producers: [
+          {
+            name: process.env.CREATE_DIARY_MQ_NAME,
+            queueUrl: process.env.CREATE_DIARY_MQ_URL,
+            region: process.env.AWS_REGION,
+          },
+        ],
       }),
     }),
   ],
