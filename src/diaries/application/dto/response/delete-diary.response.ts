@@ -67,7 +67,7 @@ export class DeleteDiaryResponse {
 
   @ApiProperty({
     description: '일기를 삭제했는지 여부입니다.',
-    example: '2022-03-17T13:00:25.000Z',
+    example: Boolean(0),
     required: true,
   })
   isDeleted: boolean;

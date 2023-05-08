@@ -3,6 +3,7 @@ import { Board, Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getCurrentUtcDate } from '../../common/utils/date-utils';
+import { commentBoard } from '../application/dto/response/read-board.response';
 
 @Injectable()
 export class BoardDao implements BoardRepository {
@@ -13,11 +14,16 @@ export class BoardDao implements BoardRepository {
     });
   }
 
-  async findAliveBoardById(boardId: number): Promise<Board | null> {
+  async findAliveBoardById(boardId: number): Promise<commentBoard | null> {
     return this.prismaService.board.findFirst({
       where: {
         id: boardId,
         isDeleted: false,
+      },
+      include: {
+        commentList: {
+          where: { isDeleted: Boolean(0) },
+        },
       },
     });
   }
@@ -56,6 +62,13 @@ export class BoardDao implements BoardRepository {
       orderBy: {
         createdAt: Prisma.SortOrder.desc,
       },
+    });
+  }
+
+  updateCommentCount(id: number, counts: number): Promise<Board> {
+    return this.prismaService.board.update({
+      where: { id: id },
+      data: { commentCount: counts },
     });
   }
 }

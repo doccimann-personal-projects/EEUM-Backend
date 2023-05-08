@@ -71,7 +71,9 @@ export class DiaryDao implements DiaryRepository {
   }
 
   async getAllDiaries(): Promise<number> {
-    return await this.prismaService.diary.count();
+    return await this.prismaService.diary.count({
+      where: { isDeleted: Boolean(0) },
+    });
   }
 
   async deleteDiary(diaryId: number): Promise<Diary> {

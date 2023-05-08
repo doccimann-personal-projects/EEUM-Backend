@@ -32,7 +32,7 @@ export class CreateBoardRequest {
   content: string;
 
   // entity로 변환하는 메소드
-  toBoardEntity(user: User): Omit<Board, 'id'> {
+  toBoardEntity(user: User): Omit<Board, 'id' | 'commentCount'> {
     return {
       authorName: user.nickname,
       userId: user.id,
