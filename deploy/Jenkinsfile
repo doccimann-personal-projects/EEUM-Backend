@@ -32,11 +32,13 @@ pipeline {
             }
         }
 
-        stage('Append .env files') {
+        stage('Append environment files') {
             steps {
                 withAWS(region: "${AWS_REGION}", credentials: "${AWS_S3_CREDENTIAL_ID}") {
                     // S3로부터 .env 파일 다운로드
                     s3Download(file: "${env.WORKSPACE}/.env", bucket: "${BUCKET_NAME}", path: 'backend/.env', force: true)
+                    // S3로부터 credentials 파일 다운로드
+                    s3Download(file: "${env.WORKSPACE}/credentials", bucket: "${BUCKET_NAME}", path: 'backend/credentials', force: true)
                 }
             }
         }
