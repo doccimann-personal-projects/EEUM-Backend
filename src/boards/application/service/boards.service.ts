@@ -1,27 +1,118 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateBoardRequest } from '../dto/request/create-board.request';
-import { UpdateBoardRequestDto } from '../dto/request/update-board.request';
-import { BoardRepository } from '../../domain/board.repository';
+import { BoardRepository } from '../../domain/repository/board.repository';
 import { CreateBoardResponse } from '../dto/response/create-board.response';
+import { ReadBoardResponse } from '../dto/response/read-board.response';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { Board, User } from '@prisma/client';
+import { BoardValidator } from '../validator/board-validator';
+import { DeleteBoardResponse } from '../dto/response/delete-board.response';
+import { PaginatedBoardResponse } from '../dto/response/paginated-board.response';
+import { isValidPaginationRequest } from '../../../common/utils/pagination-utils';
+import { RequestNotValidException } from '../../../common/customExceptions/request-not-valid.exception';
 
 @Injectable()
 export class BoardsService {
   constructor(
     @Inject('BoardRepository')
     private readonly boardRepository: BoardRepository,
+    private readonly boardValidator: BoardValidator,
     private readonly prismaService: PrismaService,
   ) {}
 
-  // 트랜잭션 단위로 게시글 생성 로직을 처리하는 메소드
-  async create(createRequest: CreateBoardRequest) {
-    const board = createRequest.toBoardEntity(BigInt(1111));
-    console.log(typeof board);
-    console.log(board);
-    console.log(createRequest);
+  // 게시글 생성
+  async create(
+    createRequest: CreateBoardRequest,
+    user: User,
+  ): Promise<CreateBoardResponse> {
+    return this.prismaService.$transaction(async () =>
+      this.createTransaction(createRequest, user),
+    );
+  }
+
+  // 게시글 상세 조회
+  async getDetailBoard(boardId: number): Promise<ReadBoardResponse | null> {
+    return this.prismaService.$transaction(async () =>
+      this.getDetailBoardTransaction(boardId),
+    );
+  }
+
+  // 게시글 삭제
+  async deleteBoard(user: User, boardId: number): Promise<DeleteBoardResponse> {
+    return this.prismaService.$transaction(async () =>
+      this.deleteBoardTransaction(user, boardId),
+    );
+  }
+
+  // 페이지네이션 기반으로 게시글 조회
+  async getPaginatedBoards(
+    page: number,
+    elements: number,
+  ): Promise<[Array<PaginatedBoardResponse>, number]> {
+    return this.prismaService.$transaction(async () =>
+      this.getPaginatedBoardsTransaction(page, elements),
+    );
+  }
+
+  private async createTransaction(
+    createRequest: CreateBoardRequest,
+    user: User,
+  ): Promise<CreateBoardResponse> {
+    const board = createRequest.toBoardEntity(user);
     const createdBoard = await this.boardRepository.create(board);
 
-    // 2. 응답 DTO를 정의하고 반환 API 확인하기
-    return CreateBoardResponse.fromEntities(createdBoard);
+    return CreateBoardResponse.fromEntity(createdBoard);
+  }
+
+  private async getDetailBoardTransaction(
+    boardId: number,
+  ): Promise<ReadBoardResponse | null> {
+    const foundBoard = await this.boardRepository.findAliveBoardById(boardId);
+    return foundBoard ? ReadBoardResponse.fromEntity(foundBoard) : null;
+  }
+
+  async deleteBoardTransaction(user: User, boardId: number) {
+    // 우선 삭제 가능한 상태인지 검증한다
+    const validationResult = await this.boardValidator.isDeletable(
+      user,
+      boardId,
+    );
+
+    if (!validationResult.success) {
+      throw validationResult.exception;
+    }
+
+    const deleteBoard = await this.boardRepository.deleteById(boardId);
+    return DeleteBoardResponse.fromEntities(deleteBoard);
+  }
+
+  private async getPaginatedBoardsTransaction(
+    page: number,
+    elements: number,
+  ): Promise<[Array<PaginatedBoardResponse>, number]> {
+    // 페이지네이션 요청이 옳은지 검증
+    const isValidRequest = isValidPaginationRequest(page, elements);
+
+    if (!isValidRequest) {
+      throw new RequestNotValidException('요청이 올바르지 않습니다');
+    }
+
+    // 결과물들을 가져온다
+    const [boards, totalCount] = await Promise.all([
+      this.boardRepository.getBoardsByPagination(page, elements),
+      this.boardRepository.getTotalCount(),
+    ]);
+
+    // 결과물들을 응답 객체로 변환한다
+    const responseList = boards?.map((board) =>
+      PaginatedBoardResponse.fromEntity(board),
+    );
+
+    return [responseList, totalCount];
+  }
+
+  // 게시물의 commentCount를 증가/감소 시킴
+  async updateCommentCount(id: number, counts: number) {
+    return this.boardRepository.updateCommentCount(id, counts);
   }
 }

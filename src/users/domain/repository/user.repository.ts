@@ -1,4 +1,5 @@
 import { User } from '@prisma/client';
+import { UserWithAddressInfo } from '../entity/user-with-address-info';
 
 export interface UserRepository {
   // User를 생성하는 메소드
@@ -15,4 +16,12 @@ export interface UserRepository {
 
   // id를 이용해 user를 삭제하는 메소드
   deleteById(id: number): Promise<User>;
+
+  // user와 addressInfo를 조인한 엔티티를 탐색하는 메소드
+  findRegisteredUserJoinAddressInfoById(
+    id: number,
+  ): Promise<UserWithAddressInfo | null>;
+
+  // user를 업데이트하는 메소드
+  update(userId: number, updateData: Partial<User>): Promise<User>;
 }

@@ -8,6 +8,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './presentation/jwt/jwt.strategy';
+import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -34,7 +35,8 @@ import { JwtStrategy } from './presentation/jwt/jwt.strategy';
     },
     UserValidator,
     JwtStrategy,
+    JwtAuthGuard,
   ],
-  exports: [UsersService],
+  exports: [UsersService, JwtAuthGuard],
 })
 export class UsersModule {}

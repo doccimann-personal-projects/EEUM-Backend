@@ -1,11 +1,16 @@
+import { BusinessException } from '../customExceptions/business-exception';
+
 export class ValidationResult {
-  private constructor(readonly success: boolean, readonly message?: string) {}
+  private constructor(
+    readonly success: boolean,
+    readonly exception?: BusinessException,
+  ) {}
 
   static getSuccessResult(): ValidationResult {
     return new ValidationResult(true);
   }
 
-  static getFailureResult(message: string): ValidationResult {
-    return new ValidationResult(false, message);
+  static getFailureResult(exception: BusinessException): ValidationResult {
+    return new ValidationResult(false, exception);
   }
 }
