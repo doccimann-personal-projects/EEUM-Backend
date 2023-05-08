@@ -1,7 +1,6 @@
 import { Diary } from '@prisma/client';
 import { paginatedDiaries } from '../application/dto/response/read-diaries.response';
 import { diaryDetails } from '../application/dto/response/read-diary.response';
-
 import { count } from '../application/dto/response/delete-diary.response';
 
 export interface DiaryRepository {

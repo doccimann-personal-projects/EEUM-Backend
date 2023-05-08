@@ -9,6 +9,7 @@ export class PaginatedBoardResponse extends PickType(CommonBoardResponse, [
   'views',
   'title',
   'content',
+  'commentCount',
   'createdAt',
 ] as const) {
   constructor(
@@ -18,6 +19,7 @@ export class PaginatedBoardResponse extends PickType(CommonBoardResponse, [
     views: number,
     title: string,
     content: string,
+    commentCount: number,
     createdAt: Date,
   ) {
     super();
@@ -28,12 +30,21 @@ export class PaginatedBoardResponse extends PickType(CommonBoardResponse, [
     this.views = views;
     this.title = title;
     this.content = content;
+    this.commentCount = commentCount;
     this.createdAt = createdAt;
   }
 
   static fromEntity(board: Board): PaginatedBoardResponse {
-    const { id, authorName, category, views, title, content, createdAt } =
-      board;
+    const {
+      id,
+      authorName,
+      category,
+      views,
+      title,
+      content,
+      commentCount,
+      createdAt,
+    } = board;
 
     return new PaginatedBoardResponse(
       Number(id),
@@ -42,6 +53,7 @@ export class PaginatedBoardResponse extends PickType(CommonBoardResponse, [
       views,
       title,
       content,
+      commentCount,
       createdAt,
     );
   }
