@@ -5,6 +5,9 @@ import { SuccessInterceptor } from './common/interceptors/success.interceptor';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import expressBasicAuth from 'express-basic-auth';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 async function bootstrap() {
   const APPLICATION_NAME: string = process.env.APPLICATION_NAME;
