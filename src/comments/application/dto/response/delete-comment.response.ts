@@ -101,3 +101,7 @@ export class DeleteCommentResponse {
     );
   }
 }
+
+export interface count {
+  count: number;
+}
