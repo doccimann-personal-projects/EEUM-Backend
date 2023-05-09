@@ -54,6 +54,14 @@ export class CommentsController {
     return this.commentsService.create(createComment, user, boardId);
   }
 
+  @Patch('/:id')
+  async update(
+    @Param('id', ParseIntPipe) commentId: number,
+    @Body() updateComment: UpdateCommentDto,
+  ) {
+    return this.commentsService.update(updateComment, commentId);
+  }
+
   @ApiOperation({
     summary: '댓글을 삭제합니다.',
   })

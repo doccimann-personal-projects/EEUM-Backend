@@ -2,6 +2,7 @@ import { CommentRepository } from '../domain/comment.repository';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Comment } from '@prisma/client';
+import { UpdateCommentDto } from '../application/dto/request/update-comment.request';
 
 @Injectable()
 export class CommentDao implements CommentRepository {
@@ -16,6 +17,17 @@ export class CommentDao implements CommentRepository {
   async commentCount(boardId: number): Promise<number> {
     return this.prismaService.comment.count({
       where: { boardId: BigInt(boardId), isDeleted: Boolean(0) },
+    });
+  }
+
+  async updateComment(
+    updateComment: UpdateCommentDto,
+    commentId: number,
+  ): Promise<Comment> {
+    const { content } = updateComment;
+    return this.prismaService.comment.update({
+      where: { id: BigInt(commentId) },
+      data: { content: content, updatedAt: new Date() },
     });
   }
 
