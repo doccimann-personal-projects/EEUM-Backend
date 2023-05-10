@@ -20,6 +20,7 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateCommentResponse } from 'src/comments/application/dto/response/create-comment.response';
 import { FailureResult } from '../../../common/response/failure-response.format';
 import { DeleteCommentResponse } from 'src/comments/application/dto/response/delete-comment.response';
+import { UpdateCommentResponse } from 'src/comments/application/dto/response/update-comment.response';
 
 @Controller('api/boards/:boardId/comments')
 export class CommentsController {
@@ -55,6 +56,33 @@ export class CommentsController {
   }
 
   @ApiOperation({
+    summary: '댓글을 수정합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '댓글 수정 성공 응답입니다.',
+    type: UpdateCommentResponse,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '실패 응답입니다',
+    type: FailureResult,
+  })
+  @ApiResponse({
+    status: 500,
+    description: '내부 서버 에러입니다',
+    type: FailureResult,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Patch('/:commentId')
+  async update(
+    @Param('commentId', ParseIntPipe) commentId: number,
+    @Body() updateComment: UpdateCommentDto,
+  ) {
+    return this.commentsService.update(updateComment, commentId);
+  }
+
+  @ApiOperation({
     summary: '댓글을 삭제합니다.',
   })
   @ApiResponse({
@@ -73,9 +101,9 @@ export class CommentsController {
     type: FailureResult,
   })
   @UseGuards(JwtAuthGuard)
-  @Delete('/:id')
+  @Delete('/:commentId')
   async deleteComment(
-    @Param('id', ParseIntPipe) commentId: number,
+    @Param('commentId', ParseIntPipe) commentId: number,
     @Param('boardId', ParseIntPipe) boardId: number,
   ) {
     return await this.commentsService.deleteComment(boardId, commentId);
