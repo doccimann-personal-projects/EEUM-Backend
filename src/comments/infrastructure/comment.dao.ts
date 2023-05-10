@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Comment } from '@prisma/client';
 import { UpdateCommentDto } from '../application/dto/request/update-comment.request';
+import { count } from '../application/dto/response/delete-comment.response';
 
 @Injectable()
 export class CommentDao implements CommentRepository {
@@ -34,6 +35,17 @@ export class CommentDao implements CommentRepository {
   async deleteComment(commentId: number): Promise<Comment> {
     return this.prismaService.comment.update({
       where: { id: BigInt(commentId) },
+      data: {
+        updatedAt: new Date(),
+        deletedAt: new Date(),
+        isDeleted: Boolean(1),
+      },
+    });
+  }
+
+  deleteComments(boardId: number): Promise<count> {
+    return this.prismaService.comment.updateMany({
+      where: { boardId: boardId },
       data: {
         updatedAt: new Date(),
         deletedAt: new Date(),
