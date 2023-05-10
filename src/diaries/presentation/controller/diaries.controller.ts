@@ -16,14 +16,15 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateDiaryResponse } from '../../application/dto/response/create-diary.response';
 import { FailureResult } from '../../../common/response/failure-response.format';
 import { ResultFactory } from 'src/common/response/result.factory';
-import { PaginatedDiaryResponse } from 'src/diaries/application/dto/response/paginated-diary.response';
 import { ReadDiaryResponse } from 'src/diaries/application/dto/response/read-diary.response';
 import { DeleteDiaryResponse } from 'src/diaries/application/dto/response/delete-diary.response';
 import { JwtAuthGuard } from 'src/users/presentation/guards/jwt-auth.guard';
 import { JwtAuthResult } from 'src/users/presentation/decorators/jwt-auth.result';
 import { UserRoleExistsPipe } from 'src/users/presentation/pipes/user-role.exists.pipe';
 import { User } from '@prisma/client';
+import { PaginatedDiaryResponse } from '../../application/dto/response/paginated-diary.response';
 
+@ApiTags('일기')
 @Controller('api/diaries')
 export class DiariesController {
   constructor(private readonly diariesService: DiariesService) {}

@@ -16,12 +16,13 @@ import { JwtAuthGuard } from 'src/users/presentation/guards/jwt-auth.guard';
 import { JwtAuthResult } from 'src/users/presentation/decorators/jwt-auth.result';
 import { UserRoleExistsPipe } from 'src/users/presentation/pipes/user-role.exists.pipe';
 import { User } from '@prisma/client';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateCommentResponse } from 'src/comments/application/dto/response/create-comment.response';
 import { FailureResult } from '../../../common/response/failure-response.format';
 import { DeleteCommentResponse } from 'src/comments/application/dto/response/delete-comment.response';
 import { UpdateCommentResponse } from 'src/comments/application/dto/response/update-comment.response';
 
+@ApiTags('게시판 댓글')
 @Controller('api/boards/:boardId/comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
