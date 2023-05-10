@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { DiaryEmotionResponse } from './types/diary-emotion.response';
+import { DetailDiaryEntity } from '../../../domain/entity/detail-diary.entity';
 
 export class ReadDiaryResponse {
   @ApiProperty({
@@ -30,6 +32,20 @@ export class ReadDiaryResponse {
   content: string;
 
   @ApiProperty({
+    description: '추천 음식의 리스트입니다',
+    example: ['떡볶이'],
+    required: true,
+  })
+  recommendedFoodList: Array<string>;
+
+  @ApiProperty({
+    description: '일기 내용을 작성해주세요.',
+    example: [],
+    required: true,
+  })
+  diaryEmotionList: Array<DiaryEmotionResponse>;
+
+  @ApiProperty({
     description: '일기를 쓴 작성 날짜의 날씨를 입력해주세요.',
     example: '맑음',
     required: true,
@@ -55,6 +71,8 @@ export class ReadDiaryResponse {
     userId: number,
     title: string,
     content: string,
+    diaryEmotionList: Array<DiaryEmotionResponse>,
+    recommendedFoodList: Array<string>,
     weather: string,
     publishedDate: string,
     createdAt: Date,
@@ -63,33 +81,42 @@ export class ReadDiaryResponse {
     this.userId = userId;
     this.title = title;
     this.content = content;
+    this.diaryEmotionList = diaryEmotionList;
+    this.recommendedFoodList = recommendedFoodList;
     this.weather = weather;
     this.publishedDate = publishedDate;
     this.createdAt = createdAt;
   }
 
-  static fromEntity(diary: diaryDetails): ReadDiaryResponse {
-    const { id, userId, title, content, weather, publishedDate, createdAt } =
-      diary;
+  static fromDetailEntity(diary: DetailDiaryEntity): ReadDiaryResponse {
+    const {
+      id,
+      userId,
+      title,
+      content,
+      diaryEmotionList,
+      recommendedFoodList,
+      weather,
+      publishedDate,
+      createdAt,
+    } = diary;
+
+    const emotionList = diaryEmotionList?.map((emotion) =>
+      DiaryEmotionResponse.fromPartialEntity(emotion),
+    );
+
+    const foodList = recommendedFoodList?.map((food) => food.foodName);
 
     return new ReadDiaryResponse(
       Number(id),
       Number(userId),
       title,
       content,
+      emotionList,
+      foodList,
       weather,
       publishedDate.toISOString().substring(0, 10),
       createdAt,
     );
   }
-}
-
-export interface diaryDetails {
-  id: bigint;
-  userId: bigint;
-  title: string;
-  content: string;
-  weather: string;
-  publishedDate: Date;
-  createdAt: Date;
 }

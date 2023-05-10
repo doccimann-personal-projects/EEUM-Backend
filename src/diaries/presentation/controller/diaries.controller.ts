@@ -12,16 +12,11 @@ import {
 } from '@nestjs/common';
 import { DiariesService } from '../../application/service/diaries.service';
 import { CreateDiaryRequest } from '../../application/dto/request/create-diary.request';
-import { UpdateDiaryDto } from '../../application/dto/request/update-diary.request';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateDiaryResponse } from '../../application/dto/response/create-diary.response';
-import { SingleSuccessResult } from '../../../common/response/success-response.format';
 import { FailureResult } from '../../../common/response/failure-response.format';
 import { ResultFactory } from 'src/common/response/result.factory';
-import {
-  ReadDiariesResponse,
-  toIntPaginatedDiaries,
-} from 'src/diaries/application/dto/response/read-diaries.response';
+import { PaginatedDiaryResponse } from 'src/diaries/application/dto/response/paginated-diary.response';
 import { ReadDiaryResponse } from 'src/diaries/application/dto/response/read-diary.response';
 import { DeleteDiaryResponse } from 'src/diaries/application/dto/response/delete-diary.response';
 import { JwtAuthGuard } from 'src/users/presentation/guards/jwt-auth.guard';
@@ -68,7 +63,12 @@ export class DiariesController {
   @ApiResponse({
     status: 200,
     description: '일기 목록 조회 성공 응답입니다.',
-    type: ReadDiariesResponse,
+    type: PaginatedDiaryResponse,
+  })
+  @ApiResponse({
+    status: 204,
+    description: '아무런 일기를 조회하지 못한 경우',
+    type: null,
   })
   @ApiResponse({
     status: 400,
@@ -88,14 +88,14 @@ export class DiariesController {
     @Query('elements', ParseIntPipe) elements: number,
     // @JwtAuthResult(UserRoleExistsPipe) user: User,
   ) {
-    const { totalElements, diaries } =
+    const [diariesResponse, totalElements] =
       await this.diariesService.getPaginatedDiaries(BigInt(1), page, elements);
-    // await this.diariesService.getPaginatedDiaries(user.id, page, elements);
-    return ResultFactory.getPaginatedSuccessResult<toIntPaginatedDiaries>(
+
+    return ResultFactory.getPaginatedSuccessResult(
       totalElements,
       page,
       elements,
-      diaries,
+      diariesResponse,
     );
   }
 
@@ -106,6 +106,11 @@ export class DiariesController {
     status: 200,
     description: '일기 상세 조회 성공 응답입니다.',
     type: ReadDiaryResponse,
+  })
+  @ApiResponse({
+    status: 204,
+    description: '아무런 일기를 조회하지 못한 경우',
+    type: null,
   })
   @ApiResponse({
     status: 400,

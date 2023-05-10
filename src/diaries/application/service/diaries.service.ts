@@ -1,18 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateDiaryRequest } from '../dto/request/create-diary.request';
-import { UpdateDiaryDto } from '../dto/request/update-diary.request';
-import { DiaryRepository } from 'src/diaries/domain/diary.repository';
+import { DiaryRepository } from 'src/diaries/domain/repository/diary.repository';
 import { CreateDiaryResponse } from '../dto/response/create-diary.response';
-import {
-  ReadDiariesResponse,
-  paginatedDiaries,
-} from '../dto/response/read-diaries.response';
+import { PaginatedDiaryResponse } from '../dto/response/paginated-diary.response';
 import { ReadDiaryResponse } from '../dto/response/read-diary.response';
 import { DeleteDiaryResponse } from '../dto/response/delete-diary.response';
-import { diaryEmotions } from '../dto/emotion-number';
-import { recommendedFoods } from '../dto/recommendedFood-number';
-import { User } from '@prisma/client';
-import { MessageProducer } from '../../../messaging/message.producer';
 import { DiaryMessageProducer } from '../producer/diary-message.producer';
 import { DiaryCreatedMessage } from '../../../boards/application/dto/message/diary-created.message';
 import { PrismaService } from '../../../prisma/prisma.service';
@@ -34,35 +26,27 @@ export class DiariesService {
     );
   }
 
-  async findDiary(diaryId: number) {
-    const foundedDiary = await this.diaryRepository.findDiary(BigInt(diaryId));
-    const diary = ReadDiaryResponse.fromEntity(foundedDiary);
-    // id, emotion, createdAt
-    diary['diaryEmotion'] =
-      foundedDiary['diaryEmotionList'].length !== 0
-        ? diaryEmotions.fromEntity(foundedDiary['diaryEmotionList'])
-        : null;
-    // id, foodName, createdAt
-    // 이후에 사진 URL로 변경 예정
-    diary['recommendedFood'] =
-      foundedDiary['recommendedFoodList'].length !== 0
-        ? recommendedFoods.fromEntity(foundedDiary['recommendedFoodList'])
-        : null;
-    return { diary };
+  async findDiary(diaryId: number): Promise<ReadDiaryResponse | null> {
+    const foundDiary = await this.diaryRepository.findDiary(BigInt(diaryId));
+
+    return foundDiary ? ReadDiaryResponse.fromDetailEntity(foundDiary) : null;
   }
 
-  async getPaginatedDiaries(userId: bigint, page: number, elements: number) {
-    const foundedDiaries: Array<paginatedDiaries> =
-      await this.diaryRepository.getPaginatedDiaries(userId, page, elements);
+  async getPaginatedDiaries(
+    userId: bigint,
+    page: number,
+    elements: number,
+  ): Promise<[Array<PaginatedDiaryResponse>, number]> {
+    const [foundDiaries, totalElements] = await Promise.all([
+      this.diaryRepository.getPaginatedDiaries(userId, page, elements),
+      this.diaryRepository.count(),
+    ]);
 
-    const totalElements: number = await this.diaryRepository.getAllDiaries();
-
-    return ReadDiariesResponse.fromEntities(
-      foundedDiaries,
-      totalElements,
-      page,
-      elements,
+    const diariesResponse = foundDiaries?.map((diary) =>
+      PaginatedDiaryResponse.fromPartialEntity(diary),
     );
+
+    return [diariesResponse, totalElements];
   }
 
   async deleteDiary(diaryId: number) {
