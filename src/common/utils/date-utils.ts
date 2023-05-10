@@ -13,3 +13,7 @@ export function getCurrentUtcDate(): Date {
 
   return new Date(utcTimestamp); // UTC 시간 기준의 Date 객체
 }
+
+export function getDateResponse(date: Date): string {
+  return date.toISOString().substring(0, 10);
+}
