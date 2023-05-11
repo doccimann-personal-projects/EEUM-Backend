@@ -101,7 +101,9 @@ export class ReadDiaryResponse {
       createdAt,
     } = diary;
 
-    const emotion = diaryEmotionList[0] ? this.getHighestEmotion(diaryEmotionList[0]) : null;
+    const emotion = diaryEmotionList[0]
+      ? this.getHighestEmotion(diaryEmotionList[0])
+      : null;
 
     const foodList = recommendedFoodList?.map((food) => food.foodName);
 
