@@ -3,6 +3,7 @@ import * as AWS from 'aws-sdk';
 import { SqsModule } from '@ssut/nestjs-sqs';
 import { MessageProducer } from './sqs/message.producer';
 import { S3FilesService } from './s3/s3-files.service';
+import { S3UploadController } from './s3/s3-upload.controller';
 
 /* AWS Credentials */
 const awsCredential = new AWS.Credentials({
@@ -28,6 +29,7 @@ AWS.config.update({
       ],
     }),
   ],
+  controllers: [S3UploadController],
   providers: [MessageProducer, S3FilesService],
   exports: [MessageProducer, S3FilesService],
 })
