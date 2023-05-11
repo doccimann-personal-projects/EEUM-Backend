@@ -13,7 +13,11 @@ export interface BoardRepository {
   getTotalCount(): Promise<number>;
 
   // 페이지네이션 기반으로 게시물을 최신순으로 가져오는 메소드
-  getBoardsByPagination(page: number, elements: number): Promise<Array<Board>>;
+  getBoardsByPagination(
+    page: number,
+    elements: number,
+    words: string,
+  ): Promise<Array<Board>>;
 
   updateCommentCount(id: number, counts: number): Promise<Board>;
 }
