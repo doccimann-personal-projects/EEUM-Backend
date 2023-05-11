@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { DiaryEmotionResponse } from './types/diary-emotion.response';
 import { DetailDiaryEntity } from '../../../domain/entity/detail-diary.entity';
+import { DiaryEmotion } from '@prisma/client';
 
 export class ReadDiaryResponse {
   @ApiProperty({
@@ -39,11 +39,11 @@ export class ReadDiaryResponse {
   recommendedFoodList: Array<string>;
 
   @ApiProperty({
-    description: '일기 내용을 작성해주세요.',
-    example: [],
+    description: '일기에 담긴 감정입니다',
+    example: '슬픔',
     required: true,
   })
-  diaryEmotionList: Array<DiaryEmotionResponse>;
+  emotion: string | null;
 
   @ApiProperty({
     description: '일기를 쓴 작성 날짜의 날씨를 입력해주세요.',
@@ -71,7 +71,7 @@ export class ReadDiaryResponse {
     userId: number,
     title: string,
     content: string,
-    diaryEmotionList: Array<DiaryEmotionResponse>,
+    emotion: string | null,
     recommendedFoodList: Array<string>,
     weather: string,
     publishedDate: string,
@@ -81,7 +81,7 @@ export class ReadDiaryResponse {
     this.userId = userId;
     this.title = title;
     this.content = content;
-    this.diaryEmotionList = diaryEmotionList;
+    this.emotion = emotion;
     this.recommendedFoodList = recommendedFoodList;
     this.weather = weather;
     this.publishedDate = publishedDate;
@@ -101,9 +101,7 @@ export class ReadDiaryResponse {
       createdAt,
     } = diary;
 
-    const emotionList = diaryEmotionList?.map((emotion) =>
-      DiaryEmotionResponse.fromPartialEntity(emotion),
-    );
+    const emotion = diaryEmotionList[0] ? this.getHighestEmotion(diaryEmotionList[0]) : null;
 
     const foodList = recommendedFoodList?.map((food) => food.foodName);
 
@@ -112,11 +110,40 @@ export class ReadDiaryResponse {
       Number(userId),
       title,
       content,
-      emotionList,
+      emotion,
       foodList,
       weather,
       publishedDate.toISOString().substring(0, 10),
       createdAt,
     );
+  }
+
+  // 가장 수치가 높은 감정을 추출하는 메소드
+  private static getHighestEmotion(emotion: Partial<DiaryEmotion>): string {
+    const emotionsScoreMap = {
+      worry: emotion.worryScore,
+      angry: emotion.angryScore,
+      happy: emotion.happyScore,
+      excited: emotion.excitedScore,
+      sad: emotion.sadScore,
+    };
+
+    const emotionNameMap = {
+      worry: '걱정',
+      angry: '분노',
+      happy: '행복',
+      excited: '설렘',
+      sad: '슬픔',
+    };
+
+    const highestEmotion: string = Object.keys(emotionsScoreMap).reduce(
+      (prev, current) => {
+        return emotionsScoreMap[prev] > emotionsScoreMap[current]
+          ? prev
+          : current;
+      },
+    );
+
+    return emotionNameMap[highestEmotion];
   }
 }
