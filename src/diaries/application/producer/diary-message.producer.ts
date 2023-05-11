@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MessageProducer } from '../../../messaging/message.producer';
+import { MessageProducer } from '../../../aws/sqs/message.producer';
 import { DiaryCreatedMessage } from '../../../boards/application/dto/message/diary-created.message';
 import { SendMessageBatchResultEntry } from 'aws-sdk/clients/sqs';
 
