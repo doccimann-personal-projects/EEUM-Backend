@@ -3,11 +3,11 @@ import { DiariesService } from './application/service/diaries.service';
 import { DiariesController } from './presentation/controller/diaries.controller';
 import { DiaryDao } from './infrastructure/diary.dao';
 import { UsersModule } from 'src/users/users.module';
-import { MessagingModule } from '../messaging/messaging.module';
+import { AwsModule } from '../aws/aws.module';
 import { DiaryMessageProducer } from './application/producer/diary-message.producer';
 
 @Module({
-  imports: [UsersModule, MessagingModule],
+  imports: [UsersModule, AwsModule],
   controllers: [DiariesController],
   providers: [
     DiariesService,

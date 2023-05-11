@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SqsService } from '@ssut/nestjs-sqs';
-import { Message, SendMessageBatchResultEntry } from 'aws-sdk/clients/sqs';
+import { SendMessageBatchResultEntry } from 'aws-sdk/clients/sqs';
 import { v4 } from 'uuid';
 
 @Injectable()

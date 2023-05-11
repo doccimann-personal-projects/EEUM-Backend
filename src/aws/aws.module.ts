@@ -1,14 +1,18 @@
 import { Global, Module } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
 import { SqsModule } from '@ssut/nestjs-sqs';
-import { MessageProducer } from './message.producer';
+import { MessageProducer } from './sqs/message.producer';
+import { S3FilesService } from './s3/s3-files.service';
+
+/* AWS Credentials */
+const awsCredential = new AWS.Credentials({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_KEY_ID,
+});
 
 AWS.config.update({
   region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_SQS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SQS_SECRET_KEY_ID,
-  },
+  credentials: awsCredential,
 });
 
 @Module({
@@ -24,7 +28,7 @@ AWS.config.update({
       ],
     }),
   ],
-  providers: [MessageProducer],
-  exports: [MessageProducer],
+  providers: [MessageProducer, S3FilesService],
+  exports: [MessageProducer, S3FilesService],
 })
-export class MessagingModule {}
+export class AwsModule {}
