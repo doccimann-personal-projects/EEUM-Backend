@@ -48,8 +48,10 @@ export const winstonLogger = WinstonModule.createLogger({
   transports: [winstonConsoleTransport, new winstonDaily(dailyOptions)],
   format: winston.format.combine(
     appendTimestamp({ tz: 'Asia/Seoul' }),
-    winston.format.printf((info) => {
-      return `${info.timestamp} - ${info.level} [${process.pid}]: ${info.message}`;
+    winston.format.printf(({ level, message, timestamp, stack }) => {
+      const meta = stack ? { stack } : null;
+      const trace = meta ? '' : JSON.stringify(meta);
+      return `${timestamp} - ${level} [${process.pid}]: ${message}\n${trace}`;
     }),
   ),
 });

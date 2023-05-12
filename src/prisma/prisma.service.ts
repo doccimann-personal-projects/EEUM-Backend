@@ -10,7 +10,10 @@ export class PrismaService
 {
   constructor() {
     super({
-      log: applicationEnvironment === 'production' ? [] : [{ emit: 'stdout', level: 'query' }],
+      log:
+        applicationEnvironment === 'production'
+          ? []
+          : [{ emit: 'stdout', level: 'query' }],
       errorFormat: 'pretty',
     });
   }

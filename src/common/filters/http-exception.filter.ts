@@ -3,11 +3,10 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
-  Inject,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ResultFactory } from '../response/result.factory';
-import { winstonLogger } from "../logging/set-winston.logger";
+import { winstonLogger } from '../logging/set-winston.logger';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
