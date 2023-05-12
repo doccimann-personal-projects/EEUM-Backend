@@ -23,6 +23,7 @@ RUN mkdir -p /root/.aws
 COPY credentials /root/.aws/credentials
 
 # Copy the env, package*.json and prisma files
+RUN mkdir logs # for logging
 COPY package*.json prisma ./
 COPY .env ./
 

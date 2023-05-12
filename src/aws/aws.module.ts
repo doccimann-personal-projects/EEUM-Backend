@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
 import { SqsModule } from '@ssut/nestjs-sqs';
 import { MessageProducer } from './sqs/message.producer';

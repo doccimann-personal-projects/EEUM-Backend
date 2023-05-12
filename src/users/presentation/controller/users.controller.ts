@@ -8,15 +8,12 @@ import {
   ParseIntPipe,
   Delete,
   Put,
-  UseInterceptors,
-  UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from '../../application/service/users.service';
 import { CreateUserRequest } from '../../application/dto/request/create-user.request';
 import { HttpExceptionFilter } from '../../../common/filters/http-exception.filter';
 import {
   ApiBearerAuth,
-  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
