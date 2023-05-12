@@ -32,8 +32,10 @@ pipeline {
             }
         }
 
-        stage('Append environment files') {
+        stage('Set the environment') {
             steps {
+                sh "mkdir logs"
+
                 withAWS(region: "${AWS_REGION}", credentials: "${AWS_S3_CREDENTIAL_ID}") {
                     // S3로부터 .env 파일 다운로드
                     s3Download(file: "${env.WORKSPACE}/.env", bucket: "${BUCKET_NAME}", path: 'backend/.env', force: true)
