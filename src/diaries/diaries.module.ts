@@ -5,6 +5,7 @@ import { DiaryDao } from './infrastructure/diary.dao';
 import { UsersModule } from 'src/users/users.module';
 import { AwsModule } from '../aws/aws.module';
 import { DiaryMessageProducer } from './application/producer/diary-message.producer';
+import { DiaryValidator } from './application/validator/diary.validator';
 
 @Module({
   imports: [UsersModule, AwsModule],
@@ -16,6 +17,7 @@ import { DiaryMessageProducer } from './application/producer/diary-message.produ
       useClass: DiaryDao,
     },
     DiaryMessageProducer,
+    DiaryValidator,
   ],
   exports: [DiariesService],
 })
