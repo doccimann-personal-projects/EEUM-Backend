@@ -14,9 +14,12 @@ export class DiaryDao implements DiaryRepository {
     });
   }
 
-  async findDiary(diaryId: bigint): Promise<DetailDiaryEntity> {
-    return this.prismaService.diary.findUnique({
-      where: { id: diaryId },
+  async findUndeletedDiary(diaryId: bigint): Promise<DetailDiaryEntity> {
+    return this.prismaService.diary.findFirst({
+      where: {
+        id: diaryId,
+        isDeleted: false,
+      },
       include: {
         diaryEmotionList: {
           select: {
