@@ -146,9 +146,10 @@ export class BoardsController {
   async getPaginatedBoards(
     @Query('page', ParseIntPipe) page: number,
     @Query('elements', ParseIntPipe) elements: number,
+    @Query('words') words: string,
   ) {
     const [responseList, totalCount] =
-      await this.boardsService.getPaginatedBoards(page, elements);
+      await this.boardsService.getPaginatedBoards(page, elements, words);
 
     return ResultFactory.getPaginatedSuccessResult(
       totalCount,

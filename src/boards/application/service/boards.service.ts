@@ -51,9 +51,10 @@ export class BoardsService {
   async getPaginatedBoards(
     page: number,
     elements: number,
+    words: string,
   ): Promise<[Array<PaginatedBoardResponse>, number]> {
     return this.prismaService.$transaction(async () =>
-      this.getPaginatedBoardsTransaction(page, elements),
+      this.getPaginatedBoardsTransaction(page, elements, words),
     );
   }
 
@@ -93,6 +94,7 @@ export class BoardsService {
   private async getPaginatedBoardsTransaction(
     page: number,
     elements: number,
+    words: string,
   ): Promise<[Array<PaginatedBoardResponse>, number]> {
     // 페이지네이션 요청이 옳은지 검증
     const isValidRequest = isValidPaginationRequest(page, elements);
@@ -103,7 +105,7 @@ export class BoardsService {
 
     // 결과물들을 가져온다
     const [boards, totalCount] = await Promise.all([
-      this.boardRepository.getBoardsByPagination(page, elements),
+      this.boardRepository.getBoardsByPagination(page, elements, words),
       this.boardRepository.getTotalCount(),
     ]);
 
