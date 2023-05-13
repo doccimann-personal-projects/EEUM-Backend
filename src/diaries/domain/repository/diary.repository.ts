@@ -5,7 +5,7 @@ import { DetailDiaryEntity } from '../entity/detail-diary.entity';
 export interface DiaryRepository {
   create(diary: Omit<Diary, 'id'>): Promise<Diary>;
 
-  findDiary(diaryId: bigint): Promise<DetailDiaryEntity | null>;
+  findUndeletedDiary(diaryId: bigint): Promise<DetailDiaryEntity | null>;
 
   getPaginatedDiaries(
     userId: bigint,

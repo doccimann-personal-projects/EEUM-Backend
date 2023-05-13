@@ -27,7 +27,9 @@ export class DiariesService {
   }
 
   async findDiary(diaryId: number): Promise<ReadDiaryResponse | null> {
-    const foundDiary = await this.diaryRepository.findDiary(BigInt(diaryId));
+    const foundDiary = await this.diaryRepository.findUndeletedDiary(
+      BigInt(diaryId),
+    );
 
     return foundDiary ? ReadDiaryResponse.fromDetailEntity(foundDiary) : null;
   }
