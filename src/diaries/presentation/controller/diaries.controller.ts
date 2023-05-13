@@ -8,7 +8,7 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  UseGuards,
+  UseGuards, UseFilters,
 } from '@nestjs/common';
 import { DiariesService } from '../../application/service/diaries.service';
 import { CreateDiaryRequest } from '../../application/dto/request/create-diary.request';
@@ -23,8 +23,10 @@ import { JwtAuthResult } from 'src/users/presentation/decorators/jwt-auth.result
 import { UserRoleExistsPipe } from 'src/users/presentation/pipes/user-role.exists.pipe';
 import { User } from '@prisma/client';
 import { PaginatedDiaryResponse } from '../../application/dto/response/paginated-diary.response';
+import {HttpExceptionFilter} from "../../../common/filters/http-exception.filter";
 
 @ApiTags('일기')
+@UseFilters(HttpExceptionFilter)
 @Controller('api/diaries')
 export class DiariesController {
   constructor(private readonly diariesService: DiariesService) {}
@@ -90,7 +92,7 @@ export class DiariesController {
     // @JwtAuthResult(UserRoleExistsPipe) user: User,
   ) {
     const [diariesResponse, totalElements] =
-      await this.diariesService.getPaginatedDiaries(BigInt(1), page, elements);
+      await this.diariesService.getPaginatedDiaries(1, page, elements);
 
     return ResultFactory.getPaginatedSuccessResult(
       totalElements,

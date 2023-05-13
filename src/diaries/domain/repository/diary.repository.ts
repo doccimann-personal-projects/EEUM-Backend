@@ -5,19 +5,22 @@ import { DetailDiaryEntity } from '../entity/detail-diary.entity';
 export interface DiaryRepository {
   create(diary: Omit<Diary, 'id'>): Promise<Diary>;
 
-  findUndeletedDiary(diaryId: bigint): Promise<DetailDiaryEntity | null>;
+  // 삭제되지 않은 일기를 가져오면서, 관련된 엔티티들을 가져오는 메소드
+  findUndeletedDetailDiary(diaryId: number): Promise<DetailDiaryEntity | null>;
+
+  findUndeletedDiary(diaryId: number): Promise<Diary | null>;
 
   getPaginatedDiaries(
-    userId: bigint,
+    userId: number,
     page: number,
     elements: number,
   ): Promise<Array<Partial<DetailDiaryEntity>>>;
 
   count(): Promise<number>;
 
-  deleteDiary(diaryId: number): Promise<Diary>;
+  deleteDiary(diaryId: number): Promise<Diary | null>;
 
-  deleteEmotion(diaryId: bigint): Promise<count>;
+  deleteEmotion(diaryId: number): Promise<count>;
 
-  deleteFood(diaryId: bigint): Promise<count>;
+  deleteFood(diaryId: number): Promise<count>;
 }

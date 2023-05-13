@@ -4,7 +4,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../dto/jwt-payload';
 import { Status, User } from '@prisma/client';
-import { NotFoundException } from '../../../common/customExceptions/not-found.exception';
+import { ResourceNotFoundException } from '../../../common/customExceptions/resource-not-found.exception';
 import { CreateUserRequest } from '../dto/request/create-user.request';
 import { CreateUserResponse } from '../dto/response/create-user.response';
 import { LoginUserRequest } from '../dto/request/login-user.request';
@@ -117,7 +117,7 @@ export class UsersService {
     );
 
     if (!userByEmail) {
-      throw new NotFoundException(
+      throw new ResourceNotFoundException(
         '사용자 이메일 또는 패스워드를 다시 확인해주세요',
       );
     }
@@ -128,7 +128,7 @@ export class UsersService {
     );
 
     if (!isPasswordValid) {
-      throw new NotFoundException(
+      throw new ResourceNotFoundException(
         '사용자 이메일 또는 페스워드를 다시 확인해주세요',
       );
     }
@@ -150,7 +150,7 @@ export class UsersService {
     const foundUser = await this.userRepository.findById(id);
 
     if (!foundUser || foundUser.status === Status.UNREGISTERED) {
-      throw new NotFoundException('올바르지 않은 접근입니다');
+      throw new ResourceNotFoundException('올바르지 않은 접근입니다');
     }
 
     return foundUser;

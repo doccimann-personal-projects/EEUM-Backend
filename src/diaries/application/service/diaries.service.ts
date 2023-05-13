@@ -8,12 +8,14 @@ import { DeleteDiaryResponse } from '../dto/response/delete-diary.response';
 import { DiaryMessageProducer } from '../producer/diary-message.producer';
 import { DiaryCreatedMessage } from '../../../boards/application/dto/message/diary-created.message';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { DiaryValidator } from '../validator/diary.validator';
 
 @Injectable()
 export class DiariesService {
   constructor(
     @Inject('DiaryRepository')
     private readonly diaryRepository: DiaryRepository,
+    private readonly diaryValidator: DiaryValidator,
     private readonly diaryMessageProducer: DiaryMessageProducer,
     private readonly prismaService: PrismaService,
   ) {}
@@ -27,15 +29,15 @@ export class DiariesService {
   }
 
   async findDiary(diaryId: number): Promise<ReadDiaryResponse | null> {
-    const foundDiary = await this.diaryRepository.findUndeletedDiary(
-      BigInt(diaryId),
+    const foundDiary = await this.diaryRepository.findUndeletedDetailDiary(
+      diaryId,
     );
 
     return foundDiary ? ReadDiaryResponse.fromDetailEntity(foundDiary) : null;
   }
 
   async getPaginatedDiaries(
-    userId: bigint,
+    userId: number,
     page: number,
     elements: number,
   ): Promise<[Array<PaginatedDiaryResponse>, number]> {
@@ -51,11 +53,17 @@ export class DiariesService {
     return [diariesResponse, totalElements];
   }
 
-  async deleteDiary(diaryId: number) {
-    await this.diaryRepository.deleteEmotion(BigInt(diaryId));
-    await this.diaryRepository.deleteFood(BigInt(diaryId));
+  async deleteDiary(diaryId: number): Promise<DeleteDiaryResponse | null> {
+    const validationResult = await this.diaryValidator.isDeletable(diaryId);
+
+    if (!validationResult.success) {
+      throw validationResult.exception;
+    }
+
+    await this.diaryRepository.deleteEmotion(diaryId);
+    await this.diaryRepository.deleteFood(diaryId);
     const deletedDiary = await this.diaryRepository.deleteDiary(diaryId);
-    return DeleteDiaryResponse.fromEntity(deletedDiary);
+    return deletedDiary ? DeleteDiaryResponse.fromEntity(deletedDiary) : null;
   }
 
   // 일기 생성에 대한 트랜잭션을 처리하는 메소드
