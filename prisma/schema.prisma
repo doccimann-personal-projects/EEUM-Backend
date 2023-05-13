@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -130,6 +131,7 @@ model Board {
   deletedAt    DateTime?     @map("deleted_at") @db.DateTime(0)
   isDeleted    Boolean       @default(false) @map("is_deleted")
 
+  @@fulltext([title])
   @@map("boards")
 }
 
