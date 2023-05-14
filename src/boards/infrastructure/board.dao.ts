@@ -52,12 +52,16 @@ export class BoardDao implements BoardRepository {
   async getBoardsByPagination(
     page: number,
     elements: number,
+    words: string,
   ): Promise<Array<Board>> {
     return this.prismaService.board.findMany({
       skip: elements * (page - 1),
       take: elements,
       where: {
         isDeleted: false,
+        title: {
+          search: words + '* *' + words,
+        },
       },
       orderBy: {
         createdAt: Prisma.SortOrder.desc,

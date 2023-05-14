@@ -1,7 +1,7 @@
 import { Comment } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class DeleteCommentResponse {
+export class UpdateCommentResponse {
   @ApiProperty({
     description: '댓글의 식별자 값입니다.',
     example: 1,
@@ -44,20 +44,6 @@ export class DeleteCommentResponse {
   })
   updatedAt: Date;
 
-  @ApiProperty({
-    description: '댓글의 삭제 일자입니다.',
-    example: '2022-04-19T13:00:25.000Z',
-    required: true,
-  })
-  deletedAt: Date;
-
-  @ApiProperty({
-    description: '댓글의 삭제 여부입니다.',
-    example: Boolean(0),
-    required: true,
-  })
-  isDeleted: boolean;
-
   constructor(
     id: number,
     userId: number,
@@ -65,8 +51,6 @@ export class DeleteCommentResponse {
     content: string,
     createdAt: Date,
     updatedAt: Date,
-    deletedAt: Date,
-    isDeleted: boolean,
   ) {
     this.id = id;
     this.userId = userId;
@@ -74,34 +58,16 @@ export class DeleteCommentResponse {
     this.content = content;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
-    this.deletedAt = deletedAt;
-    this.isDeleted = isDeleted;
   }
-
-  static fromEntity(comment: Comment): DeleteCommentResponse {
-    const {
-      id,
-      userId,
-      boardId,
-      content,
-      createdAt,
-      updatedAt,
-      deletedAt,
-      isDeleted,
-    } = comment;
-    return new DeleteCommentResponse(
+  static fromEntity(comment: Comment): UpdateCommentResponse {
+    const { id, userId, boardId, content, createdAt, updatedAt } = comment;
+    return new UpdateCommentResponse(
       Number(id),
       Number(userId),
       Number(boardId),
       content,
       createdAt,
       updatedAt,
-      deletedAt,
-      isDeleted,
     );
   }
-}
-
-export interface count {
-  count: number;
 }

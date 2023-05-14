@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -89,8 +90,11 @@ model DiaryEmotion {
   id           BigInt    @id @default(autoincrement())
   diaryId      BigInt    @map("diary_id")
   diary        Diary     @relation(fields: [diaryId], references: [id]) // 1-N
-  emotion      String    @db.VarChar(30)
-  emotionScore Decimal   @map("emotion_score") @db.Decimal(3, 2)
+  worryScore   Decimal   @map("worry_score") @db.Decimal(4, 2)
+  angryScore   Decimal   @map("angry_score") @db.Decimal(4, 2)
+  happyScore   Decimal   @map("happy_score") @db.Decimal(4, 2)
+  excitedScore Decimal   @map("excited_score") @db.Decimal(4, 2)
+  sadScore     Decimal   @map("sad_score") @db.Decimal(4, 2)
   createdAt    DateTime  @default(now()) @map("created_at") @db.DateTime(0)
   updatedAt    DateTime? @map("updated_at") @db.DateTime(0)
   deletedAt    DateTime? @map("deleted_at") @db.DateTime(0)
@@ -127,6 +131,7 @@ model Board {
   deletedAt    DateTime?     @map("deleted_at") @db.DateTime(0)
   isDeleted    Boolean       @default(false) @map("is_deleted")
 
+  @@fulltext([title])
   @@map("boards")
 }
 

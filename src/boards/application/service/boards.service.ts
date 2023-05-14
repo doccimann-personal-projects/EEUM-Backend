@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateBoardRequest } from '../dto/request/create-board.request';
 import { BoardRepository } from '../../domain/repository/board.repository';
 import { CreateBoardResponse } from '../dto/response/create-board.response';
@@ -10,6 +10,7 @@ import { DeleteBoardResponse } from '../dto/response/delete-board.response';
 import { PaginatedBoardResponse } from '../dto/response/paginated-board.response';
 import { isValidPaginationRequest } from '../../../common/utils/pagination-utils';
 import { RequestNotValidException } from '../../../common/customExceptions/request-not-valid.exception';
+import { CommentsService } from 'src/comments/application/service/comments.service';
 
 @Injectable()
 export class BoardsService {
@@ -18,6 +19,8 @@ export class BoardsService {
     private readonly boardRepository: BoardRepository,
     private readonly boardValidator: BoardValidator,
     private readonly prismaService: PrismaService,
+    @Inject(forwardRef(() => CommentsService))
+    private readonly commentsService: CommentsService,
   ) {}
 
   // 게시글 생성
@@ -48,9 +51,10 @@ export class BoardsService {
   async getPaginatedBoards(
     page: number,
     elements: number,
+    words: string,
   ): Promise<[Array<PaginatedBoardResponse>, number]> {
     return this.prismaService.$transaction(async () =>
-      this.getPaginatedBoardsTransaction(page, elements),
+      this.getPaginatedBoardsTransaction(page, elements, words),
     );
   }
 
@@ -83,12 +87,14 @@ export class BoardsService {
     }
 
     const deleteBoard = await this.boardRepository.deleteById(boardId);
+    this.commentsService.deleteComments(boardId);
     return DeleteBoardResponse.fromEntities(deleteBoard);
   }
 
   private async getPaginatedBoardsTransaction(
     page: number,
     elements: number,
+    words: string,
   ): Promise<[Array<PaginatedBoardResponse>, number]> {
     // 페이지네이션 요청이 옳은지 검증
     const isValidRequest = isValidPaginationRequest(page, elements);
@@ -99,7 +105,7 @@ export class BoardsService {
 
     // 결과물들을 가져온다
     const [boards, totalCount] = await Promise.all([
-      this.boardRepository.getBoardsByPagination(page, elements),
+      this.boardRepository.getBoardsByPagination(page, elements, words),
       this.boardRepository.getTotalCount(),
     ]);
 

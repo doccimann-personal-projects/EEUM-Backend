@@ -1,10 +1,10 @@
-import { DiaryRepository } from '../domain/diary.repository';
+import { DiaryRepository } from '../domain/repository/diary.repository';
 import { Diary } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { paginatedDiaries } from '../application/dto/response/read-diaries.response';
-import { diaryDetails } from '../application/dto/response/read-diary.response';
 import { count } from '../application/dto/response/delete-diary.response';
+import { DetailDiaryEntity } from '../domain/entity/detail-diary.entity';
+import { getCurrentUtcDate } from '../../common/utils/date-utils';
 
 @Injectable()
 export class DiaryDao implements DiaryRepository {
@@ -15,37 +15,49 @@ export class DiaryDao implements DiaryRepository {
     });
   }
 
-  async findDiary(diaryId: bigint): Promise<diaryDetails> {
-    return this.prismaService.diary.findUnique({
-      where: { id: diaryId },
+  async findUndeletedDetailDiary(diaryId: number): Promise<DetailDiaryEntity> {
+    return this.prismaService.diary.findFirst({
+      where: {
+        id: diaryId,
+        isDeleted: false,
+      },
       include: {
-        recommendedFoodList: {
-          select: {
-            id: true,
-            foodName: true,
-            createdAt: true,
-          },
-        },
         diaryEmotionList: {
           select: {
-            id: true,
-            emotion: true,
-            createdAt: true,
+            angryScore: true,
+            worryScore: true,
+            happyScore: true,
+            excitedScore: true,
+            sadScore: true,
+          },
+        },
+        recommendedFoodList: {
+          select: {
+            foodName: true,
           },
         },
       },
     });
   }
 
+  async findUndeletedDiary(diaryId: number): Promise<Diary | null> {
+    return this.prismaService.diary.findFirst({
+      where: {
+        id: diaryId,
+        isDeleted: false,
+      },
+    });
+  }
+
   async getPaginatedDiaries(
-    userId: bigint,
+    userId: number,
     page: number,
     elements: number,
-  ): Promise<Array<paginatedDiaries>> {
-    return await this.prismaService.diary.findMany({
+  ): Promise<Array<Partial<DetailDiaryEntity>>> {
+    return this.prismaService.diary.findMany({
       where: {
         userId: userId,
-        isDeleted: Boolean(0),
+        isDeleted: false,
       },
       skip: elements * (page - 1),
       take: elements,
@@ -60,7 +72,11 @@ export class DiaryDao implements DiaryRepository {
         },
         diaryEmotionList: {
           select: {
-            emotion: true,
+            angryScore: true,
+            worryScore: true,
+            happyScore: true,
+            excitedScore: true,
+            sadScore: true,
           },
         },
       },
@@ -70,47 +86,50 @@ export class DiaryDao implements DiaryRepository {
     });
   }
 
-  async getAllDiaries(): Promise<number> {
-    return await this.prismaService.diary.count({
-      where: { isDeleted: Boolean(0) },
+  async count(): Promise<number> {
+    return this.prismaService.diary.count({
+      where: { isDeleted: false },
     });
   }
 
-  async deleteDiary(diaryId: number): Promise<Diary> {
-    return await this.prismaService.diary.update({
+  async deleteDiary(diaryId: number): Promise<Diary | null> {
+    // diaryId는 unique한 값이기 때문에 1개만 삭제가 이루어진다
+    const deletedDiary = await this.prismaService.diary.update({
       where: {
         id: diaryId,
       },
       data: {
-        updatedAt: new Date(),
-        deletedAt: new Date(),
-        isDeleted: Boolean(1),
+        updatedAt: getCurrentUtcDate(),
+        deletedAt: getCurrentUtcDate(),
+        isDeleted: true,
       },
     });
+
+    return deletedDiary ? deletedDiary : null;
   }
 
-  async deleteEmotion(diaryId: bigint): Promise<count> {
-    return await this.prismaService.diaryEmotion.updateMany({
+  async deleteEmotion(diaryId: number): Promise<count> {
+    return this.prismaService.diaryEmotion.updateMany({
       where: {
         diaryId: diaryId,
       },
       data: {
-        updatedAt: new Date(),
-        deletedAt: new Date(),
-        isDeleted: Boolean(1),
+        updatedAt: getCurrentUtcDate(),
+        deletedAt: getCurrentUtcDate(),
+        isDeleted: true,
       },
     });
   }
 
-  async deleteFood(diaryId: bigint): Promise<count> {
-    return await this.prismaService.recommendedFood.updateMany({
+  async deleteFood(diaryId: number): Promise<count> {
+    return this.prismaService.recommendedFood.updateMany({
       where: {
         diaryId: diaryId,
       },
       data: {
-        updatedAt: new Date(),
-        deletedAt: new Date(),
-        isDeleted: Boolean(1),
+        updatedAt: getCurrentUtcDate(),
+        deletedAt: getCurrentUtcDate(),
+        isDeleted: true,
       },
     });
   }

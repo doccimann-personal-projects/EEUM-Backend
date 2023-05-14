@@ -1,6 +1,8 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
+const applicationEnvironment = process.env.NODE_ENV;
+
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -8,7 +10,10 @@ export class PrismaService
 {
   constructor() {
     super({
-      log: [{ emit: 'stdout', level: 'query' }],
+      log:
+        applicationEnvironment === 'production'
+          ? []
+          : [{ emit: 'stdout', level: 'query' }],
       errorFormat: 'pretty',
     });
   }

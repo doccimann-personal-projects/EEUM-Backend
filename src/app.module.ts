@@ -6,6 +6,7 @@ import { BoardsModule } from './boards/boards.module';
 import { ConfigModule } from '@nestjs/config';
 import { DiariesModule } from './diaries/diaries.module';
 import { CommentsModule } from './comments/comments.module';
+import { AwsModule } from './aws/aws.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CommentsModule } from './comments/comments.module';
     BoardsModule,
     CommentsModule,
     ConfigModule.forRoot(),
+    AwsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,6 +5,10 @@ import { SuccessInterceptor } from './common/interceptors/success.interceptor';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import expressBasicAuth from 'express-basic-auth';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import * as dotenv from 'dotenv';
+import { winstonLogger } from './common/logging/set-winston.logger';
+
+dotenv.config();
 
 async function bootstrap() {
   const APPLICATION_NAME: string = process.env.APPLICATION_NAME;
@@ -12,8 +16,14 @@ async function bootstrap() {
   const APPLICATION_VERSION: string = process.env.APPLICATION_VERSION;
   const PORT = process.env.PORT;
 
+  const logger = winstonLogger;
+
   const app = await NestFactory.create(AppModule);
 
+  // Logging
+  app.useLogger(logger);
+
+  // CORS
   app.enableCors({
     origin: true,
     credentials: true,

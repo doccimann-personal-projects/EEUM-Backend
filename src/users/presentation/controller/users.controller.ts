@@ -103,12 +103,11 @@ export class UsersController {
     type: FailureResult,
   })
   @UseGuards(JwtAuthGuard)
-  @Post('/:id/profile')
+  @Post('/profile')
   async getProfile(
-    @Param('id', ParseIntPipe) userId: number,
-    @JwtAuthResult(UserRoleExistsPipe) user: User, // Guard를 통해 인증된 결과에서 USER Role이 존재하는지 검증한 결과를 받아온다
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
   ): Promise<ReadUserResponse> {
-    return await this.usersService.getProfile(user, userId);
+    return await this.usersService.getProfile(user);
   }
 
   @ApiOperation({

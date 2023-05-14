@@ -87,7 +87,7 @@ export interface commentBoard {
   content: string;
   createdAt: Date;
   commentList: Array<commentInfo>;
-  isDeleted: Boolean;
+  isDeleted: boolean;
 }
 
 export interface toIntCommentInfo {
