@@ -6,9 +6,11 @@ import { UsersModule } from 'src/users/users.module';
 import { AwsModule } from '../aws/aws.module';
 import { DiaryMessageProducer } from './application/producer/diary-message.producer';
 import { DiaryValidator } from './application/validator/diary.validator';
+import { CommonModule } from '../common/common.module';
+import { ApmModule } from 'nestjs-elastic-apm';
 
 @Module({
-  imports: [UsersModule, AwsModule],
+  imports: [UsersModule, AwsModule, CommonModule, ApmModule.register()],
   controllers: [DiariesController],
   providers: [
     DiariesService,

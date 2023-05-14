@@ -8,7 +8,9 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  UseGuards, UseFilters,
+  UseGuards,
+  UseFilters,
+  UseInterceptors,
 } from '@nestjs/common';
 import { DiariesService } from '../../application/service/diaries.service';
 import { CreateDiaryRequest } from '../../application/dto/request/create-diary.request';
@@ -23,10 +25,12 @@ import { JwtAuthResult } from 'src/users/presentation/decorators/jwt-auth.result
 import { UserRoleExistsPipe } from 'src/users/presentation/pipes/user-role.exists.pipe';
 import { User } from '@prisma/client';
 import { PaginatedDiaryResponse } from '../../application/dto/response/paginated-diary.response';
-import {HttpExceptionFilter} from "../../../common/filters/http-exception.filter";
+import { HttpExceptionFilter } from '../../../common/filters/http-exception.filter';
+import { ApmInterceptor } from '../../../common/interceptors/apm.interceptor';
 
 @ApiTags('일기')
 @UseFilters(HttpExceptionFilter)
+@UseInterceptors(ApmInterceptor)
 @Controller('api/diaries')
 export class DiariesController {
   constructor(private readonly diariesService: DiariesService) {}

@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   UseGuards,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { BoardsService } from '../../application/service/boards.service';
 import { CreateBoardRequest } from '../../application/dto/request/create-board.request';
@@ -29,9 +30,11 @@ import { JwtAuthGuard } from '../../../users/presentation/guards/jwt-auth.guard'
 import { DeleteBoardResponse } from '../../application/dto/response/delete-board.response';
 import { ResultFactory } from '../../../common/response/result.factory';
 import { PaginatedBoardResponse } from '../../application/dto/response/paginated-board.response';
+import { ApmInterceptor } from '../../../common/interceptors/apm.interceptor';
 
 @ApiTags('게시판')
 @Controller('api/boards')
+@UseInterceptors(ApmInterceptor)
 @UseFilters(HttpExceptionFilter)
 export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}

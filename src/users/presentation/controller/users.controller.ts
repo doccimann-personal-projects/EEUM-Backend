@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Delete,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from '../../application/service/users.service';
 import { CreateUserRequest } from '../../application/dto/request/create-user.request';
@@ -30,9 +31,11 @@ import { DeleteUserResponse } from '../../application/dto/response/delete-user.r
 import { UpdateUserResponse } from '../../application/dto/response/update-user.response';
 import { UpdateUserRequest } from '../../application/dto/request/update-user.request';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { ApmInterceptor } from '../../../common/interceptors/apm.interceptor';
 
 @ApiTags('인증/인가')
 @Controller('api/users')
+@UseInterceptors(ApmInterceptor)
 @UseFilters(HttpExceptionFilter)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

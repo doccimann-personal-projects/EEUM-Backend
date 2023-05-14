@@ -9,6 +9,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './presentation/jwt/jwt.strategy';
 import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
+import { ApmModule } from 'nestjs-elastic-apm';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { JwtAuthGuard } from './presentation/guards/jwt-auth.guard';
       defaultStrategy: 'jwt',
       session: false,
     }),
+    ApmModule.register(),
+    CommonModule,
   ],
   controllers: [UsersController],
   providers: [

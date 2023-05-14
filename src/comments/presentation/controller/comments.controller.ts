@@ -8,6 +8,8 @@ import {
   Delete,
   ParseIntPipe,
   UseGuards,
+  UseFilters,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CommentsService } from '../../application/service/comments.service';
 import { CreateCommentRequest } from '../../application/dto/request/create-comment.request';
@@ -21,8 +23,12 @@ import { CreateCommentResponse } from 'src/comments/application/dto/response/cre
 import { FailureResult } from '../../../common/response/failure-response.format';
 import { DeleteCommentResponse } from 'src/comments/application/dto/response/delete-comment.response';
 import { UpdateCommentResponse } from 'src/comments/application/dto/response/update-comment.response';
+import { HttpExceptionFilter } from '../../../common/filters/http-exception.filter';
+import { ApmInterceptor } from '../../../common/interceptors/apm.interceptor';
 
 @ApiTags('게시판 댓글')
+@UseInterceptors(ApmInterceptor)
+@UseFilters(HttpExceptionFilter)
 @Controller('api/boards/:boardId/comments')
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}

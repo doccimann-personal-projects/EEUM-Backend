@@ -60,7 +60,7 @@ export class BoardDao implements BoardRepository {
       where: {
         isDeleted: false,
         title: {
-          search: words + '* *' + words,
+          search: `${words}* *${words}`,
         },
       },
       orderBy: {

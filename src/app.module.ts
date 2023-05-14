@@ -7,15 +7,17 @@ import { ConfigModule } from '@nestjs/config';
 import { DiariesModule } from './diaries/diaries.module';
 import { CommentsModule } from './comments/comments.module';
 import { AwsModule } from './aws/aws.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     UsersModule,
     DiariesModule,
     BoardsModule,
     CommentsModule,
-    ConfigModule.forRoot(),
     AwsModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [AppService],

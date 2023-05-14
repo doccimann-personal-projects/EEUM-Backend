@@ -10,12 +10,12 @@ import { winstonLogger } from './common/logging/set-winston.logger';
 
 dotenv.config();
 
-async function bootstrap() {
-  const APPLICATION_NAME: string = process.env.APPLICATION_NAME;
-  const APPLICATION_DESCRIPTION: string = process.env.APPLICATION_DESCRIPTION;
-  const APPLICATION_VERSION: string = process.env.APPLICATION_VERSION;
-  const PORT = process.env.PORT;
+const APPLICATION_NAME: string = process.env.APPLICATION_NAME;
+const APPLICATION_DESCRIPTION: string = process.env.APPLICATION_DESCRIPTION;
+const APPLICATION_VERSION: string = process.env.APPLICATION_VERSION;
+const PORT = process.env.PORT;
 
+async function bootstrap() {
   const logger = winstonLogger;
 
   const app = await NestFactory.create(AppModule);
@@ -78,4 +78,5 @@ async function bootstrap() {
 
   await app.listen(PORT);
 }
+
 bootstrap();
