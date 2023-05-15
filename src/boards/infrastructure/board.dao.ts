@@ -41,7 +41,7 @@ export class BoardDao implements BoardRepository {
         title: title,
         content: content,
         category: category,
-        updatedAt: new Date(),
+        updatedAt: getCurrentUtcDate(),
       },
     });
   }
