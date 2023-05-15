@@ -89,7 +89,7 @@ export class BoardsController {
     description: '내부 서버 에러입니다',
     type: FailureResult,
   })
-  @Get('/:id')
+  @Get('/detail/:id')
   getBoard(@Param('id', ParseIntPipe) boardId: number) {
     return this.boardsService.getDetailBoard(boardId);
   }

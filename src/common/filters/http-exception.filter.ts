@@ -10,6 +10,7 @@ import { winstonLogger } from '../logging/set-winston.logger';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly applicationEnvironment = process.env.NODE_ENV;
   private readonly logger = winstonLogger;
 
   catch(exception: HttpException, host: ArgumentsHost) {
@@ -17,7 +18,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
 
-    this.logger.warn(exception);
+    this.logger.warn(exception.stack);
 
     response
       .status(status)
