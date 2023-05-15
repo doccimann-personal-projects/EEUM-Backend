@@ -51,10 +51,20 @@ export class BoardsService {
   async getPaginatedBoards(
     page: number,
     elements: number,
+  ): Promise<[Array<PaginatedBoardResponse>, number]> {
+    return this.prismaService.$transaction(async () =>
+      this.getPaginatedBoardsTransaction(page, elements),
+    );
+  }
+
+  // 페이지네이션 기반으로 게시글 검색
+  async getSearchedBoards(
+    page: number,
+    elements: number,
     words: string,
   ): Promise<[Array<PaginatedBoardResponse>, number]> {
     return this.prismaService.$transaction(async () =>
-      this.getPaginatedBoardsTransaction(page, elements, words),
+      this.getSearchedBoardsTransaction(page, elements, words),
     );
   }
 
@@ -94,6 +104,31 @@ export class BoardsService {
   private async getPaginatedBoardsTransaction(
     page: number,
     elements: number,
+  ): Promise<[Array<PaginatedBoardResponse>, number]> {
+    // 페이지네이션 요청이 옳은지 검증
+    const isValidRequest = isValidPaginationRequest(page, elements);
+
+    if (!isValidRequest) {
+      throw new RequestNotValidException('요청이 올바르지 않습니다');
+    }
+
+    // 결과물들을 가져온다
+    const [boards, totalCount] = await Promise.all([
+      this.boardRepository.getBoardsByPagination(page, elements),
+      this.boardRepository.getTotalCount(),
+    ]);
+
+    // 결과물들을 응답 객체로 변환한다
+    const responseList = boards?.map((board) =>
+      PaginatedBoardResponse.fromEntity(board),
+    );
+
+    return [responseList, totalCount];
+  }
+
+  private async getSearchedBoardsTransaction(
+    page: number,
+    elements: number,
     words: string,
   ): Promise<[Array<PaginatedBoardResponse>, number]> {
     // 페이지네이션 요청이 옳은지 검증
@@ -105,7 +140,7 @@ export class BoardsService {
 
     // 결과물들을 가져온다
     const [boards, totalCount] = await Promise.all([
-      this.boardRepository.getBoardsByPagination(page, elements, words),
+      this.boardRepository.getSearchedBoardsByPagination(page, elements, words),
       this.boardRepository.getTotalCount(),
     ]);
 
