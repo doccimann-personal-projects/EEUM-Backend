@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   UseGuards,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { BoardsService } from '../../application/service/boards.service';
 import { CreateBoardRequest } from '../../application/dto/request/create-board.request';
@@ -29,6 +30,7 @@ import { JwtAuthGuard } from '../../../users/presentation/guards/jwt-auth.guard'
 import { DeleteBoardResponse } from '../../application/dto/response/delete-board.response';
 import { ResultFactory } from '../../../common/response/result.factory';
 import { PaginatedBoardResponse } from '../../application/dto/response/paginated-board.response';
+import { UpdateBoardRequest } from 'src/boards/application/dto/request/update-board.request';
 
 @ApiTags('게시판')
 @Controller('api/boards')
@@ -86,9 +88,17 @@ export class BoardsController {
     description: '내부 서버 에러입니다',
     type: FailureResult,
   })
-  @Get('/:id')
+  @Get('/detail/:id')
   getBoard(@Param('id', ParseIntPipe) boardId: number) {
     return this.boardsService.getDetailBoard(boardId);
+  }
+
+  @Patch('/:id')
+  updateBoard(
+    @Param('id', ParseIntPipe) boardId: number,
+    @Body() updateRequest: UpdateBoardRequest,
+  ) {
+    return this.boardsService.updateBoard(updateRequest, boardId);
   }
 
   @ApiOperation({
