@@ -33,6 +33,7 @@ import { ResultFactory } from '../../../common/response/result.factory';
 import { PaginatedBoardResponse } from '../../application/dto/response/paginated-board.response';
 import { UpdateBoardRequest } from 'src/boards/application/dto/request/update-board.request';
 import { ApmInterceptor } from '../../../common/interceptors/apm.interceptor';
+import { UpdateBoardResponse } from 'src/boards/application/dto/response/update-board.response';
 
 @ApiTags('게시판')
 @Controller('api/boards')
@@ -96,6 +97,23 @@ export class BoardsController {
     return this.boardsService.getDetailBoard(boardId);
   }
 
+  @ApiOperation({
+    summary: '게시글 수정 API 입니다',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '게시글 수정 성공 응답입니다',
+    type: UpdateBoardResponse,
+  })
+  @ApiResponse({
+    status: 204,
+    description: '게시물이 존재하지 않는 경우의 응답입니다',
+  })
+  @ApiResponse({
+    status: 500,
+    description: '내부 서버 에러입니다',
+    type: FailureResult,
+  })
   @Patch('/:id')
   updateBoard(
     @Param('id', ParseIntPipe) boardId: number,
