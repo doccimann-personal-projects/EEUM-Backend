@@ -7,6 +7,11 @@ export interface BoardRepository {
 
   findAliveBoardById(id: number): Promise<commentBoard | null>;
 
+  updateBoardById(
+    board: Pick<Board, 'title' | 'content' | 'category'>,
+    id: number,
+  ): Promise<Board>;
+
   deleteById(id: number): Promise<Board>;
 
   // 게시물의 총 개수를 반환하는 메소드

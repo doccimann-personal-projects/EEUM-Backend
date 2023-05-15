@@ -11,6 +11,8 @@ import { PaginatedBoardResponse } from '../dto/response/paginated-board.response
 import { isValidPaginationRequest } from '../../../common/utils/pagination-utils';
 import { RequestNotValidException } from '../../../common/customExceptions/request-not-valid.exception';
 import { CommentsService } from 'src/comments/application/service/comments.service';
+import { UpdateBoardRequest } from '../dto/request/update-board.request';
+import { UpdateBoardResponse } from '../dto/response/update-board.response';
 
 @Injectable()
 export class BoardsService {
@@ -37,6 +39,15 @@ export class BoardsService {
   async getDetailBoard(boardId: number): Promise<ReadBoardResponse | null> {
     return this.prismaService.$transaction(async () =>
       this.getDetailBoardTransaction(boardId),
+    );
+  }
+
+  async updateBoard(
+    updateRequest: UpdateBoardRequest,
+    boardId: number,
+  ): Promise<any> {
+    return this.prismaService.$transaction(async () =>
+      this.updateBoardTransaction(updateRequest, boardId),
     );
   }
 
@@ -83,6 +94,17 @@ export class BoardsService {
   ): Promise<ReadBoardResponse | null> {
     const foundBoard = await this.boardRepository.findAliveBoardById(boardId);
     return foundBoard ? ReadBoardResponse.fromEntity(foundBoard) : null;
+  }
+
+  private async updateBoardTransaction(
+    updateRequest: UpdateBoardRequest,
+    boardId: number,
+  ): Promise<UpdateBoardResponse> {
+    const updatedBoard = await this.boardRepository.updateBoardById(
+      updateRequest,
+      boardId,
+    );
+    return UpdateBoardResponse.fromEntity(updatedBoard);
   }
 
   async deleteBoardTransaction(user: User, boardId: number) {

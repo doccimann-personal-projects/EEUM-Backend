@@ -28,6 +28,24 @@ export class BoardDao implements BoardRepository {
     });
   }
 
+  async updateBoardById(
+    board: Pick<Board, 'title' | 'content' | 'category'>,
+    boardId: number,
+  ): Promise<Board> {
+    const { title, content, category } = board;
+    return this.prismaService.board.update({
+      where: {
+        id: boardId,
+      },
+      data: {
+        title: title,
+        content: content,
+        category: category,
+        updatedAt: getCurrentUtcDate(),
+      },
+    });
+  }
+
   async deleteById(boardId: number): Promise<Board> {
     return this.prismaService.board.update({
       where: {
