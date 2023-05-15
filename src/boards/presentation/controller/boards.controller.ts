@@ -146,10 +146,49 @@ export class BoardsController {
   async getPaginatedBoards(
     @Query('page', ParseIntPipe) page: number,
     @Query('elements', ParseIntPipe) elements: number,
+  ) {
+    const [responseList, totalCount] =
+      await this.boardsService.getPaginatedBoards(page, elements);
+
+    return ResultFactory.getPaginatedSuccessResult(
+      totalCount,
+      page,
+      elements,
+      responseList,
+    );
+  }
+
+  @ApiOperation({
+    summary: '게시글을 페이지네이션 기반으로 검색하여 가져오는 API 입니다',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '게시글 조회 성공 응답입니다',
+    type: PaginatedBoardResponse,
+  })
+  @ApiResponse({
+    status: 204,
+    description:
+      '게시글 조회에는 성공했으나, 조회된 게시물이 없는 경우의 응답입니다',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '실패 응답입니다',
+    type: FailureResult,
+  })
+  @ApiResponse({
+    status: 500,
+    description: '내부 서버 에러입니다',
+    type: FailureResult,
+  })
+  @Get('/search')
+  async getSearchedBoards(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('elements', ParseIntPipe) elements: number,
     @Query('words') words: string,
   ) {
     const [responseList, totalCount] =
-      await this.boardsService.getPaginatedBoards(page, elements, words);
+      await this.boardsService.getSearchedBoards(page, elements, words);
 
     return ResultFactory.getPaginatedSuccessResult(
       totalCount,
