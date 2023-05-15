@@ -15,10 +15,14 @@ export class DiaryDao implements DiaryRepository {
     });
   }
 
-  async findUndeletedDetailDiary(diaryId: number): Promise<DetailDiaryEntity> {
+  async findDetailDiaryByIdAndUserId(
+    diaryId: number,
+    userId: number,
+  ): Promise<DetailDiaryEntity> {
     return this.prismaService.diary.findFirst({
       where: {
         id: diaryId,
+        userId: userId,
         isDeleted: false,
       },
       include: {
@@ -89,6 +93,15 @@ export class DiaryDao implements DiaryRepository {
   async count(): Promise<number> {
     return this.prismaService.diary.count({
       where: { isDeleted: false },
+    });
+  }
+
+  countByUserId(userId: number): Promise<number> {
+    return this.prismaService.diary.count({
+      where: {
+        isDeleted: false,
+        userId: userId,
+      },
     });
   }
 

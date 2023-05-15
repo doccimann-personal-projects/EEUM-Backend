@@ -14,7 +14,12 @@ import {
 } from '@nestjs/common';
 import { DiariesService } from '../../application/service/diaries.service';
 import { CreateDiaryRequest } from '../../application/dto/request/create-diary.request';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateDiaryResponse } from '../../application/dto/response/create-diary.response';
 import { FailureResult } from '../../../common/response/failure-response.format';
 import { ResultFactory } from 'src/common/response/result.factory';
@@ -38,6 +43,7 @@ export class DiariesController {
   @ApiOperation({
     summary: '일기를 작성합니다.',
   })
+  @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
     description: '일기 작성 성공 응답입니다.',
@@ -54,19 +60,19 @@ export class DiariesController {
     type: FailureResult,
   })
   // 일기 작성
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(
     @Body() createDiaryDto: CreateDiaryRequest,
-    // @JwtAuthResult(UserRoleExistsPipe) user: User,
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
   ): Promise<CreateDiaryResponse> {
-    // return await this.diariesService.create(user, createDiaryDto);
-    return await this.diariesService.create(createDiaryDto);
+    return await this.diariesService.create(user, createDiaryDto);
   }
 
   @ApiOperation({
     summary: '자신의 일기 목록을 조회합니다.',
   })
+  @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
     description: '일기 목록 조회 성공 응답입니다.',
@@ -88,15 +94,19 @@ export class DiariesController {
     type: FailureResult,
   })
   // 자신의 일기 목록 조회
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get()
   async getPaginatedDiaries(
     @Query('page', ParseIntPipe) page: number,
     @Query('elements', ParseIntPipe) elements: number,
-    // @JwtAuthResult(UserRoleExistsPipe) user: User,
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
   ) {
     const [diariesResponse, totalElements] =
-      await this.diariesService.getPaginatedDiaries(1, page, elements);
+      await this.diariesService.getPaginatedDiaries(
+        Number(user.id),
+        page,
+        elements,
+      );
 
     return ResultFactory.getPaginatedSuccessResult(
       totalElements,
@@ -109,6 +119,7 @@ export class DiariesController {
   @ApiOperation({
     summary: '자신의 일기를 상세 조회합니다.',
   })
+  @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
     description: '일기 상세 조회 성공 응답입니다.',
@@ -130,15 +141,20 @@ export class DiariesController {
     type: FailureResult,
   })
   // 일기 상세조회
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('detail/:id')
-  async findDiary(@Param('id', ParseIntPipe) diaryId: number) {
-    return await this.diariesService.findDiary(diaryId);
+  async findDiary(
+    @Param('id', ParseIntPipe) diaryId: number,
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
+  ) {
+    const userId = Number(user.id);
+    return await this.diariesService.findDiary(diaryId, userId);
   }
 
   @ApiOperation({
     summary: '자신의 일기를 삭제합니다.',
   })
+  @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
     description: '일기 삭제 성공 응답입니다.',
@@ -155,9 +171,13 @@ export class DiariesController {
     type: FailureResult,
   })
   // 일기 삭제
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async deleteDiary(@Param('id', ParseIntPipe) diaryId: number) {
-    return await this.diariesService.deleteDiary(diaryId);
+  async deleteDiary(
+    @Param('id', ParseIntPipe) diaryId: number,
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
+  ) {
+    const userId = Number(user.id);
+    return await this.diariesService.deleteDiary(diaryId, userId);
   }
 }

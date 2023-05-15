@@ -9,6 +9,7 @@ import { DiaryMessageProducer } from '../producer/diary-message.producer';
 import { DiaryCreatedMessage } from '../../../boards/application/dto/message/diary-created.message';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { DiaryValidator } from '../validator/diary.validator';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class DiariesService {
@@ -20,17 +21,21 @@ export class DiariesService {
     private readonly prismaService: PrismaService,
   ) {}
   async create(
-    // user: User,
+    user: User,
     createDiaryRequest: CreateDiaryRequest,
   ): Promise<CreateDiaryResponse> {
     return this.prismaService.$transaction(async () =>
-      this.getCreateTransaction(createDiaryRequest),
+      this.getCreateTransaction(user, createDiaryRequest),
     );
   }
 
-  async findDiary(diaryId: number): Promise<ReadDiaryResponse | null> {
-    const foundDiary = await this.diaryRepository.findUndeletedDetailDiary(
+  async findDiary(
+    diaryId: number,
+    userId: number,
+  ): Promise<ReadDiaryResponse | null> {
+    const foundDiary = await this.diaryRepository.findDetailDiaryByIdAndUserId(
       diaryId,
+      userId,
     );
 
     return foundDiary ? ReadDiaryResponse.fromDetailEntity(foundDiary) : null;
@@ -43,7 +48,7 @@ export class DiariesService {
   ): Promise<[Array<PaginatedDiaryResponse>, number]> {
     const [foundDiaries, totalElements] = await Promise.all([
       this.diaryRepository.getPaginatedDiaries(userId, page, elements),
-      this.diaryRepository.count(),
+      this.diaryRepository.countByUserId(userId),
     ]);
 
     const diariesResponse = foundDiaries?.map((diary) =>
@@ -53,8 +58,14 @@ export class DiariesService {
     return [diariesResponse, totalElements];
   }
 
-  async deleteDiary(diaryId: number): Promise<DeleteDiaryResponse | null> {
-    const validationResult = await this.diaryValidator.isDeletable(diaryId);
+  async deleteDiary(
+    diaryId: number,
+    userId: number,
+  ): Promise<DeleteDiaryResponse | null> {
+    const validationResult = await this.diaryValidator.isDeletable(
+      diaryId,
+      userId,
+    );
 
     if (!validationResult.success) {
       throw validationResult.exception;
@@ -68,10 +79,10 @@ export class DiariesService {
 
   // 일기 생성에 대한 트랜잭션을 처리하는 메소드
   async getCreateTransaction(
+    user: User,
     createDiaryRequest: CreateDiaryRequest,
   ): Promise<CreateDiaryResponse> {
-    // const diary = createDiaryRequest.toDiaryEntity(user.id);
-    const diary = createDiaryRequest.toDiaryEntity(BigInt(1));
+    const diary = createDiaryRequest.toDiaryEntity(user.id);
     const createdDiary = await this.diaryRepository.create(diary);
 
     // 일기 생성 이후, 일기 생성에 대한 메시지를 발행한다
