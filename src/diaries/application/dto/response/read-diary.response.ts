@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { DetailDiaryEntity } from '../../../domain/entity/detail-diary.entity';
+import { DiaryEmotion } from '@prisma/client';
 
 export class ReadDiaryResponse {
   @ApiProperty({
@@ -30,6 +32,20 @@ export class ReadDiaryResponse {
   content: string;
 
   @ApiProperty({
+    description: '추천 음식의 리스트입니다',
+    example: ['떡볶이'],
+    required: true,
+  })
+  recommendedFoodList: Array<string>;
+
+  @ApiProperty({
+    description: '일기에 담긴 감정입니다',
+    example: '슬픔',
+    required: true,
+  })
+  emotion: string | null;
+
+  @ApiProperty({
     description: '일기를 쓴 작성 날짜의 날씨를 입력해주세요.',
     example: '맑음',
     required: true,
@@ -55,6 +71,8 @@ export class ReadDiaryResponse {
     userId: number,
     title: string,
     content: string,
+    emotion: string | null,
+    recommendedFoodList: Array<string>,
     weather: string,
     publishedDate: string,
     createdAt: Date,
@@ -63,33 +81,71 @@ export class ReadDiaryResponse {
     this.userId = userId;
     this.title = title;
     this.content = content;
+    this.emotion = emotion;
+    this.recommendedFoodList = recommendedFoodList;
     this.weather = weather;
     this.publishedDate = publishedDate;
     this.createdAt = createdAt;
   }
 
-  static fromEntity(diary: diaryDetails): ReadDiaryResponse {
-    const { id, userId, title, content, weather, publishedDate, createdAt } =
-      diary;
+  static fromDetailEntity(diary: DetailDiaryEntity): ReadDiaryResponse {
+    const {
+      id,
+      userId,
+      title,
+      content,
+      diaryEmotionList,
+      recommendedFoodList,
+      weather,
+      publishedDate,
+      createdAt,
+    } = diary;
+
+    const emotion = diaryEmotionList[0]
+      ? this.getHighestEmotion(diaryEmotionList[0])
+      : null;
+
+    const foodList = recommendedFoodList?.map((food) => food.foodName);
 
     return new ReadDiaryResponse(
       Number(id),
       Number(userId),
       title,
       content,
+      emotion,
+      foodList,
       weather,
       publishedDate.toISOString().substring(0, 10),
       createdAt,
     );
   }
-}
 
-export interface diaryDetails {
-  id: bigint;
-  userId: bigint;
-  title: string;
-  content: string;
-  weather: string;
-  publishedDate: Date;
-  createdAt: Date;
+  // 가장 수치가 높은 감정을 추출하는 메소드
+  private static getHighestEmotion(emotion: Partial<DiaryEmotion>): string {
+    const emotionsScoreMap = {
+      worry: emotion.worryScore,
+      angry: emotion.angryScore,
+      happy: emotion.happyScore,
+      excited: emotion.excitedScore,
+      sad: emotion.sadScore,
+    };
+
+    const emotionNameMap = {
+      worry: '걱정',
+      angry: '분노',
+      happy: '행복',
+      excited: '설렘',
+      sad: '슬픔',
+    };
+
+    const highestEmotion: string = Object.keys(emotionsScoreMap).reduce(
+      (prev, current) => {
+        return emotionsScoreMap[prev] > emotionsScoreMap[current]
+          ? prev
+          : current;
+      },
+    );
+
+    return emotionNameMap[highestEmotion];
+  }
 }

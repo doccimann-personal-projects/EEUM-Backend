@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BoardRepository } from '../../domain/repository/board.repository';
 import { ValidationResult } from '../../../common/validation/validation.result';
-import { NotFoundException } from '../../../common/customExceptions/not-found.exception';
+import { ResourceNotFoundException } from '../../../common/customExceptions/resource-not-found.exception';
 import { User } from '@prisma/client';
 import { NotAuthorizedException } from '../../../common/customExceptions/not-authorized.exception';
 
@@ -26,7 +26,7 @@ export class BoardValidator {
     // 아예 존재하지 않거나, 혹은 이미 삭제되었다면
     if (!foundBoard || foundBoard.isDeleted) {
       return ValidationResult.getFailureResult(
-        new NotFoundException('게시물이 존재하지 않습니다'),
+        new ResourceNotFoundException('게시물이 존재하지 않습니다'),
       );
     }
 

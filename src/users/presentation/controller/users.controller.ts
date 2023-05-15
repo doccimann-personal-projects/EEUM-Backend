@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Delete,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from '../../application/service/users.service';
 import { CreateUserRequest } from '../../application/dto/request/create-user.request';
@@ -30,9 +31,11 @@ import { DeleteUserResponse } from '../../application/dto/response/delete-user.r
 import { UpdateUserResponse } from '../../application/dto/response/update-user.response';
 import { UpdateUserRequest } from '../../application/dto/request/update-user.request';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { ApmInterceptor } from '../../../common/interceptors/apm.interceptor';
 
 @ApiTags('인증/인가')
 @Controller('api/users')
+@UseInterceptors(ApmInterceptor)
 @UseFilters(HttpExceptionFilter)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -103,12 +106,11 @@ export class UsersController {
     type: FailureResult,
   })
   @UseGuards(JwtAuthGuard)
-  @Post('/:id/profile')
+  @Post('/profile')
   async getProfile(
-    @Param('id', ParseIntPipe) userId: number,
-    @JwtAuthResult(UserRoleExistsPipe) user: User, // Guard를 통해 인증된 결과에서 USER Role이 존재하는지 검증한 결과를 받아온다
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
   ): Promise<ReadUserResponse> {
-    return await this.usersService.getProfile(user, userId);
+    return await this.usersService.getProfile(user);
   }
 
   @ApiOperation({

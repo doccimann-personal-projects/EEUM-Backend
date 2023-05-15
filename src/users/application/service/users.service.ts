@@ -4,7 +4,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../dto/jwt-payload';
 import { Status, User } from '@prisma/client';
-import { NotFoundException } from '../../../common/customExceptions/not-found.exception';
+import { ResourceNotFoundException } from '../../../common/customExceptions/resource-not-found.exception';
 import { CreateUserRequest } from '../dto/request/create-user.request';
 import { CreateUserResponse } from '../dto/response/create-user.response';
 import { LoginUserRequest } from '../dto/request/login-user.request';
@@ -51,10 +51,10 @@ export class UsersService {
   }
 
   // 프로필 조회를 처리하는 메소드
-  async getProfile(user: User, userId: number): Promise<ReadUserResponse> {
+  async getProfile(user: User): Promise<ReadUserResponse> {
     // 트랜잭션을 이용해서 생성 요청을 처리
     return await this.prismaService.$transaction(async () =>
-      this.getProfileTransaction(user, userId),
+      this.getProfileTransaction(user),
     );
   }
 
@@ -83,7 +83,6 @@ export class UsersService {
   private async getSignupTransaction(
     createRequest: CreateUserRequest,
   ): Promise<CreateUserResponse> {
-    // 1. 생성 이전에 검증
     const validationResult = await this.userValidator.isCreatable(
       createRequest,
     );
@@ -92,15 +91,12 @@ export class UsersService {
       throw validationResult.exception;
     }
 
-    // 2. password를 bcrypt를 이용해 해싱
     const hashedRequest = await createRequest.getHashedRequest();
 
-    // 3. 요청 dto로부터 user 엔티티 추출 후 생성 쿼리를 이용해 사용자 생성
     const user = hashedRequest.toUserEntity();
 
     const createdUser = await this.userRepository.create(user);
 
-    // 4. 요청 dto로부터 addressInfo 엔티티 추출 후 생성 쿼리를 이용해 주소 생성
     const addressInfo = hashedRequest.toAddressInfoEntity(createdUser.id);
 
     const createdAddressInfo = await this.addressInfoRepository.create(
@@ -121,7 +117,7 @@ export class UsersService {
     );
 
     if (!userByEmail) {
-      throw new NotFoundException(
+      throw new ResourceNotFoundException(
         '사용자 이메일 또는 패스워드를 다시 확인해주세요',
       );
     }
@@ -132,7 +128,7 @@ export class UsersService {
     );
 
     if (!isPasswordValid) {
-      throw new NotFoundException(
+      throw new ResourceNotFoundException(
         '사용자 이메일 또는 페스워드를 다시 확인해주세요',
       );
     }
@@ -154,21 +150,14 @@ export class UsersService {
     const foundUser = await this.userRepository.findById(id);
 
     if (!foundUser || foundUser.status === Status.UNREGISTERED) {
-      throw new NotFoundException('올바르지 않은 접근입니다');
+      throw new ResourceNotFoundException('올바르지 않은 접근입니다');
     }
 
     return foundUser;
   }
 
   // 프로필 조회 트랜잭션 쿼리들을 정의하는 메소드
-  private async getProfileTransaction(
-    user: User,
-    userId: number,
-  ): Promise<ReadUserResponse> {
-    if (Number(user.id) !== userId) {
-      throw new NotAuthorizedException('허용되지 않은 접근입니다');
-    }
-
+  private async getProfileTransaction(user: User): Promise<ReadUserResponse> {
     const foundAddressInfo = await this.addressInfoRepository.findByUserId(
       Number(user.id),
     );

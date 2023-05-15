@@ -6,9 +6,17 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { BoardValidator } from './application/validator/board-validator';
 import { UsersModule } from '../users/users.module';
 import { CommentsModule } from 'src/comments/comments.module';
+import { ApmModule } from 'nestjs-elastic-apm';
+import { CommonModule } from '../common/common.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, forwardRef(() => CommentsModule)],
+  imports: [
+    PrismaModule,
+    UsersModule,
+    forwardRef(() => CommentsModule),
+    ApmModule.register(),
+    CommonModule,
+  ],
   controllers: [BoardsController],
   providers: [
     BoardsService,
