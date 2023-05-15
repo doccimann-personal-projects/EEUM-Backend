@@ -131,7 +131,7 @@ export class DiariesController {
   })
   // 일기 상세조회
   // @UseGuards(JwtAuthGuard)
-  @Get(':id')
+  @Get('detail/:id')
   async findDiary(@Param('id', ParseIntPipe) diaryId: number) {
     return await this.diariesService.findDiary(diaryId);
   }

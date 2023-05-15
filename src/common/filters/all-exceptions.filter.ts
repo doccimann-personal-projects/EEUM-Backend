@@ -18,7 +18,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status = HttpStatus.INTERNAL_SERVER_ERROR;
 
-    this.logger.error(exception);
+    this.logger.error(exception.stack);
 
     response
       .status(status)
