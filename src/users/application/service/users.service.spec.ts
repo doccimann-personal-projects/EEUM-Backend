@@ -170,15 +170,13 @@ describe('UsersService', () => {
         .mockResolvedValue(createdAddress);
 
       /* When */
-      const validationResult = await userValidator.isCreatable(createRequest);
       const createUserResponse = await userService.signup(createRequest);
 
       /* Then */
-      expect(findByEmailMock).toHaveBeenCalledTimes(2);
-      expect(findByNicknameMock).toHaveBeenCalledTimes(2);
+      expect(findByEmailMock).toHaveBeenCalledTimes(1);
+      expect(findByNicknameMock).toHaveBeenCalledTimes(1);
       expect(createUserMock).toHaveBeenCalledTimes(1);
       expect(createAddressMock).toHaveBeenCalledTimes(1);
-      expect(validationResult).toEqual(ValidationResult.getSuccessResult()); // 검증을 성공하기를 기대한다
       expect(createUserResponse).toEqual(createdUserResponse); // 성공적으로 값을 반환하기를 기대한다
     });
   });
