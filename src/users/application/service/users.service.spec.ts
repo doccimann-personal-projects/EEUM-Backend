@@ -14,6 +14,10 @@ import { CreateUserRequest } from '../dto/request/create-user.request';
 import { ResourceDuplicatedException } from '../../../common/customExceptions/resource-duplicated.exception';
 import { ValidationResult } from '../../../common/validation/validation.result';
 import { CreateUserResponse } from '../dto/response/create-user.response';
+import { LoginUserRequest } from '../dto/request/login-user.request';
+import { ResourceNotFoundException } from '../../../common/customExceptions/resource-not-found.exception';
+import * as bcrypt from 'bcrypt';
+import { LoginUserResponse } from '../dto/response/login-user.response';
 
 describe('UsersService', () => {
   let userRepository: UserRepository;
@@ -174,10 +178,103 @@ describe('UsersService', () => {
       expect(findByNicknameMock).toHaveBeenCalledTimes(2);
       expect(createUserMock).toHaveBeenCalledTimes(1);
       expect(createAddressMock).toHaveBeenCalledTimes(1);
-      expect(validationResult).toEqual(ValidationResult.getSuccessResult());
-      expect(createUserResponse).toEqual(createdUserResponse);
+      expect(validationResult).toEqual(ValidationResult.getSuccessResult()); // 검증을 성공하기를 기대한다
+      expect(createUserResponse).toEqual(createdUserResponse); // 성공적으로 값을 반환하기를 기대한다
     });
   });
+
+  describe('로그인 테스트', () => {
+    it('존재하지 않는 이메일로 로그인 시도', async () => {
+      /* Mock */
+      const email = 'brian@example.com';
+      const password = 'brianpassword!';
+      const loginRequest = getLoginRequest(email, password);
+
+      const findByEmailMock = jest
+        .spyOn(userRepository, 'findRegisteredUserByEmail')
+        .mockResolvedValue(null);
+
+      /* When and Then */
+      // 해당하는 이메일 계정이 없기를 기대한다
+      await expect(() => userService.login(loginRequest)).rejects.toThrow(
+        ResourceNotFoundException,
+      );
+      // 이메일을 기반으로 조회하는 로직이 1회 호출되기를 기대한다
+      expect(findByEmailMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('일치하지 않는 비밀번호로 로그인 시도', async () => {
+      /* Given */
+      const email = 'brian@example.com';
+      const wrongPassword = 'wrongPassword!';
+      const realPassword = 'realPassword!';
+
+      const hashedPassword = await bcrypt.hash(realPassword, 10);
+      const loginRequest = getLoginRequest(email, wrongPassword);
+
+      const foundUser = getUser(email, 'brian', hashedPassword);
+
+      const findByEmailMock = jest
+        .spyOn(userRepository, 'findRegisteredUserByEmail')
+        .mockResolvedValue(foundUser);
+
+      /* When and Then */
+      // 패스워드가 틀렸기 때문에 에러가 반환되기를 기대한다
+      await expect(async () => userService.login(loginRequest)).rejects.toThrow(
+        ResourceNotFoundException,
+      );
+      // 이메일을 기반으로 1회 조회하기를 기대한다
+      expect(findByEmailMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('로그인 성공', async () => {
+      /* Mock */
+      const email = 'brian@example.com';
+      const password = 'brianpassword!';
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const loginRequest = getLoginRequest(email, password);
+
+      const foundUser = getUser(email, 'brian', hashedPassword);
+
+      const findByEmailMock = jest
+        .spyOn(userRepository, 'findRegisteredUserByEmail')
+        .mockResolvedValue(foundUser);
+
+      /* When */
+      const loginResponse = await userService.login(loginRequest);
+
+      /* Then */
+      // 이메일을 기반으로 1회 조회하기를 기대한다
+      expect(findByEmailMock).toHaveBeenCalledTimes(1);
+      // 정상적으로 반환되었는지만 체크한다
+      expect(loginResponse).toBeInstanceOf(LoginUserResponse);
+    });
+  });
+
+  // 주어진 정보를 가진 user를 생성하는 메소드
+  function getUser(email: string, nickname: string, password: string): User {
+    return {
+      id: BigInt(1),
+      birthDate: 0,
+      birthMonth: 0,
+      birthYear: 0,
+      createdAt: undefined,
+      deletedAt: undefined,
+      email: email,
+      firstName: '',
+      gender: undefined,
+      isDeleted: false,
+      lastName: '',
+      nickname: nickname,
+      password: password,
+      phoneNumber: '',
+      profilePhotoUrl: '',
+      role: undefined,
+      status: undefined,
+      updatedAt: undefined,
+    };
+  }
 
   // 생성 요청 dto를 생성하는 메소드
   function getCreateRequest(
@@ -200,5 +297,10 @@ describe('UsersService', () => {
       '',
       '',
     );
+  }
+
+  // 로그인 요청 dto를 생성하는 메소드
+  function getLoginRequest(email: string, password: string): LoginUserRequest {
+    return new LoginUserRequest(email, password);
   }
 });
