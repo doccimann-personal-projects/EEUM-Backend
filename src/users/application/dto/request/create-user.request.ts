@@ -147,6 +147,39 @@ export class CreateUserRequest {
   @IsNotEmpty()
   detailAddress: string;
 
+  // 생성자
+  constructor(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    nickname: string,
+    phoneNumber: string,
+    gender: Gender,
+    birthYear: number,
+    birthMonth: number,
+    birthDate: number,
+    profilePhotoUrl: string,
+    zipCode: number,
+    mainAddress: string,
+    detailAddress: string,
+  ) {
+    this.email = email;
+    this.password = password;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.nickname = nickname;
+    this.phoneNumber = phoneNumber;
+    this.gender = gender;
+    this.birthYear = birthYear;
+    this.birthMonth = birthMonth;
+    this.birthDate = birthDate;
+    this.profilePhotoUrl = profilePhotoUrl;
+    this.zipCode = zipCode;
+    this.mainAddress = mainAddress;
+    this.detailAddress = detailAddress;
+  }
+
   // user entity로 변환하는 메소드
   toUserEntity(role: Role = Role.USER): Omit<User, 'id'> {
     return {
