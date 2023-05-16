@@ -101,6 +101,28 @@ export class UpdateUserRequest {
   @IsNotEmpty()
   detailAddress?: string;
 
+  constructor(
+    password?: string,
+    firstName?: string,
+    lastName?: string,
+    nickname?: string,
+    phoneNumber?: string,
+    profilePhotoUrl?: string,
+    zipCode?: number,
+    mainAddress?: string,
+    detailAddress?: string,
+  ) {
+    this.password = password;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.nickname = nickname;
+    this.phoneNumber = phoneNumber;
+    this.profilePhotoUrl = profilePhotoUrl;
+    this.zipCode = zipCode;
+    this.mainAddress = mainAddress;
+    this.detailAddress = detailAddress;
+  }
+
   // user를 업데이트할 데이터를 반환하는 메소드
   toUserUpdateData(): Partial<User> {
     return {
