@@ -63,7 +63,7 @@ export class UsersServiceImpl implements UsersService {
   // 회원 탈퇴를 처리하는 메소드
   async withdrawUser(user: User, userId: number): Promise<DeleteUserResponse> {
     return await this.prismaService.$transaction(async () =>
-      this.unregisterUserTransaction(user, userId),
+      this.getWithdrawUserTransaction(user, userId),
     );
   }
 
@@ -165,7 +165,7 @@ export class UsersServiceImpl implements UsersService {
   }
 
   // 회원탈퇴 트랜잭션 쿼리들을 정의하는 메소드
-  private async unregisterUserTransaction(
+  private async getWithdrawUserTransaction(
     user: User,
     userId: number,
   ): Promise<DeleteUserResponse> {

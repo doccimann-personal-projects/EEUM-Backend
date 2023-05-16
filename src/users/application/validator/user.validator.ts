@@ -54,7 +54,7 @@ export class UserValidator {
     const findByNickname =
       await this.userRepository.findRegisteredUserByNickname(user.nickname);
 
-    if (userId !== Number(findByNickname.id) && findByNickname) {
+    if (findByNickname && userId !== Number(findByNickname.id)) {
       return ValidationResult.getFailureResult(
         new ResourceDuplicatedException('중복된 닉네임입니다'),
       );
