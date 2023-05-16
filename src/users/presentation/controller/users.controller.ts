@@ -9,8 +9,8 @@ import {
   Delete,
   Put,
   UseInterceptors,
+  Inject,
 } from '@nestjs/common';
-import { UsersService } from '../../application/service/users.service';
 import { CreateUserRequest } from '../../application/dto/request/create-user.request';
 import { HttpExceptionFilter } from '../../../common/filters/http-exception.filter';
 import {
@@ -32,13 +32,16 @@ import { UpdateUserResponse } from '../../application/dto/response/update-user.r
 import { UpdateUserRequest } from '../../application/dto/request/update-user.request';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { ApmInterceptor } from '../../../common/interceptors/apm.interceptor';
+import { UsersService } from '../../application/service/users.service';
 
 @ApiTags('인증/인가')
 @Controller('api/users')
 @UseInterceptors(ApmInterceptor)
 @UseFilters(HttpExceptionFilter)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    @Inject('UserService') private readonly usersService: UsersService,
+  ) {}
 
   @ApiOperation({
     summary: '일반 사용자 회원가입입니다',
@@ -138,7 +141,7 @@ export class UsersController {
     @Param('id', ParseIntPipe) userId: number,
     @JwtAuthResult(UserRoleExistsPipe) user: User,
   ): Promise<DeleteUserResponse> {
-    return await this.usersService.unregisterUser(user, userId);
+    return await this.usersService.withdrawUser(user, userId);
   }
 
   @ApiOperation({

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './application/service/users.service';
+import { UsersServiceImpl } from './application/service/users.service.impl';
 import { UsersController } from './presentation/controller/users.controller';
 import { UserDao } from './infrastructure/user.dao';
 import { UserValidator } from './application/validator/user.validator';
@@ -28,7 +28,10 @@ import { CommonModule } from '../common/common.module';
   ],
   controllers: [UsersController],
   providers: [
-    UsersService,
+    {
+      provide: 'UserService',
+      useClass: UsersServiceImpl,
+    },
     {
       provide: 'UserRepository',
       useClass: UserDao,
@@ -41,6 +44,6 @@ import { CommonModule } from '../common/common.module';
     JwtStrategy,
     JwtAuthGuard,
   ],
-  exports: [UsersService, JwtAuthGuard],
+  exports: ['UserService', JwtAuthGuard],
 })
 export class UsersModule {}
