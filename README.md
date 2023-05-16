@@ -49,6 +49,8 @@ swagger 문서 주소: http://kdt-ai6-team02.elicecoding.com/backend-docs
 - 감정분석 결과를 통한 야식 추천 기능
 - 게시글 CRUD 및 게시글에 댓글 추가, 수정, 삭제 기능
 
+<img src="./docs-images/elastic-apm.png" width="935" height="540">
+
 ## 개발 이슈
 
 ### 게시글 검색 기능 구현
