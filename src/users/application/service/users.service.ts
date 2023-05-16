@@ -4,7 +4,6 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../dto/jwt-payload';
 import { Status, User } from '@prisma/client';
-import { ResourceNotFoundException } from '../../../common/customExceptions/resource-not-found.exception';
 import { CreateUserRequest } from '../dto/request/create-user.request';
 import { CreateUserResponse } from '../dto/response/create-user.response';
 import { LoginUserRequest } from '../dto/request/login-user.request';
@@ -17,6 +16,7 @@ import { NotAuthorizedException } from '../../../common/customExceptions/not-aut
 import { DeleteUserResponse } from '../dto/response/delete-user.response';
 import { UpdateUserRequest } from '../dto/request/update-user.request';
 import { UpdateUserResponse } from '../dto/response/update-user.response';
+import { ResourceNotFoundException } from '../../../common/customExceptions/resource-not-found.exception';
 
 @Injectable()
 export class UsersService {
