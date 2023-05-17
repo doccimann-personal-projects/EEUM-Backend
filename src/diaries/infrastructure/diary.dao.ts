@@ -18,7 +18,7 @@ export class DiaryDao implements DiaryRepository {
   async findDetailDiaryByIdAndUserId(
     diaryId: number,
     userId: number,
-  ): Promise<DetailDiaryEntity> {
+  ): Promise<DetailDiaryEntity | null> {
     return this.prismaService.diary.findFirst({
       where: {
         id: diaryId,

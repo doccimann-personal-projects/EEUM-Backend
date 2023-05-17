@@ -10,14 +10,17 @@ import {
   count,
 } from '../dto/response/delete-comment.response';
 import { UpdateCommentResponse } from '../dto/response/update-comment.response';
+import { Mutex } from 'async-mutex';
 
 @Injectable()
 export class CommentsService {
+  private readonly mutex: Mutex = new Mutex();
+
   constructor(
     @Inject('CommentRepository')
     private readonly commentRepository: CommentRepository,
     @Inject(forwardRef(() => BoardsService))
-    private readonly BoardsService: BoardsService,
+    private readonly boardsService: BoardsService,
   ) {}
 
   async create(
@@ -26,12 +29,18 @@ export class CommentsService {
     boardId: number,
   ): Promise<CreateCommentResponse> {
     const comment = createComment.toCommentEntity(user.id, BigInt(boardId));
-    const [createdComment, commentCounts] = await Promise.all([
-      await this.commentRepository.create(comment),
-      await this.commentRepository.commentCount(boardId),
-    ]);
-    this.BoardsService.updateCommentCount(boardId, commentCounts);
-    return CreateCommentResponse.fromEntity(createdComment);
+    const createdComment = await this.commentRepository.create(comment);
+
+    const release = await this.mutex.acquire();
+
+    // 댓글 개수 증가 부분은 mutex로 처리
+    try {
+      // board의 댓글 개수 증가
+      await this.boardsService.increaseCommentCountTransaction(boardId);
+      return CreateCommentResponse.fromEntity(createdComment);
+    } finally {
+      release();
+    }
   }
 
   async update(
@@ -49,15 +58,21 @@ export class CommentsService {
     boardId: number,
     commentId: number,
   ): Promise<DeleteCommentResponse> {
-    const [deletedComment, commentCounts] = await Promise.all([
-      await this.commentRepository.deleteComment(commentId),
-      await this.commentRepository.commentCount(boardId),
-    ]);
-    this.BoardsService.updateCommentCount(boardId, commentCounts);
-    return DeleteCommentResponse.fromEntity(deletedComment);
+    const deletedComment = await this.commentRepository.deleteComment(
+      commentId,
+    );
+
+    const release = await this.mutex.acquire();
+
+    try {
+      await this.boardsService.decreaseCommentCountTransaction(boardId);
+      return DeleteCommentResponse.fromEntity(deletedComment);
+    } finally {
+      release();
+    }
   }
 
   async deleteComments(boardId: number): Promise<count> {
-    return this.commentRepository.deleteComments(boardId);
+    return this.commentRepository.deleteCommentsByBoardId(boardId);
   }
 }

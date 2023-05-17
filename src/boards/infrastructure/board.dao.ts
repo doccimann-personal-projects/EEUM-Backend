@@ -3,7 +3,11 @@ import { Board, Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getCurrentUtcDate } from '../../common/utils/date-utils';
-import { commentBoard } from '../application/dto/response/read-board.response';
+import {
+  getTransformCommentCountData,
+  getTransformViewsData,
+} from '../domain/extensions/board-entity.extension';
+import { BoardWithCommentsEntity } from '../domain/entity/board-with-comments.entity';
 
 @Injectable()
 export class BoardDao implements BoardRepository {
@@ -14,7 +18,18 @@ export class BoardDao implements BoardRepository {
     });
   }
 
-  async findAliveBoardById(boardId: number): Promise<commentBoard | null> {
+  async findById(id: number): Promise<Board | null> {
+    return this.prismaService.board.findFirst({
+      where: {
+        id: id,
+        isDeleted: false,
+      },
+    });
+  }
+
+  async findDetailBoardById(
+    boardId: number,
+  ): Promise<BoardWithCommentsEntity | null> {
     return this.prismaService.board.findFirst({
       where: {
         id: boardId,
@@ -22,14 +37,32 @@ export class BoardDao implements BoardRepository {
       },
       include: {
         commentList: {
-          where: { isDeleted: Boolean(0) },
+          where: { isDeleted: false },
         },
       },
     });
   }
 
+  async findAllBoardsByUserId(
+    userId: number,
+    page: number,
+    elements: number,
+  ): Promise<Array<Board>> {
+    return this.prismaService.board.findMany({
+      where: {
+        userId: userId,
+        isDeleted: false,
+      },
+      skip: elements * (page - 1),
+      take: elements,
+      orderBy: {
+        createdAt: Prisma.SortOrder.desc,
+      },
+    });
+  }
+
   async updateBoardById(
-    board: Pick<Board, 'title' | 'content' | 'category'>,
+    board: Partial<Board>,
     boardId: number,
   ): Promise<Board> {
     const { title, content, category } = board;
@@ -62,6 +95,15 @@ export class BoardDao implements BoardRepository {
   async getTotalCount(): Promise<number> {
     return this.prismaService.board.count({
       where: {
+        isDeleted: false,
+      },
+    });
+  }
+
+  async getCountByUserId(userId: number): Promise<number> {
+    return this.prismaService.board.count({
+      where: {
+        userId: userId,
         isDeleted: false,
       },
     });
@@ -103,10 +145,39 @@ export class BoardDao implements BoardRepository {
     });
   }
 
-  updateCommentCount(id: number, counts: number): Promise<Board> {
+  async updateViewCountById(boardId: number, count: number): Promise<Board> {
+    const board = await this.findById(boardId);
+
+    if (!board) {
+      return null;
+    }
+
+    // 업데이트 데이터를 가져온다
+    const updateData = getTransformViewsData(board, count);
+
     return this.prismaService.board.update({
-      where: { id: id },
-      data: { commentCount: counts },
+      where: { id: boardId },
+      data: updateData,
+    });
+  }
+
+  async updateCommentCountById(
+    boardId: number,
+    count: number,
+  ): Promise<Board | null> {
+    const board = await this.findById(boardId);
+
+    if (!board) {
+      return null;
+    }
+
+    const updateData = getTransformCommentCountData(board, count);
+
+    return this.prismaService.board.update({
+      where: {
+        id: boardId,
+      },
+      data: updateData,
     });
   }
 }

@@ -228,4 +228,52 @@ export class BoardsController {
       responseList,
     );
   }
+
+  @ApiOperation({
+    summary: '내 게시물을 페이지네이션 기반으로 탐색하는 API 입니다',
+  })
+  @ApiBearerAuth('accesskey')
+  @ApiResponse({
+    status: 200,
+    description: '게시글 조회 성공 응답입니다',
+    type: PaginatedBoardResponse,
+  })
+  @ApiResponse({
+    status: 204,
+    description:
+      '게시글 조회에는 성공했으나, 조회된 게시물이 없는 경우의 응답입니다',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '실패 응답입니다',
+    type: FailureResult,
+  })
+  @ApiResponse({
+    status: 500,
+    description: '내부 서버 에러입니다',
+    type: FailureResult,
+  })
+  @UseGuards(JwtAuthGuard)
+  @Get('/my-boards')
+  async getMyBoards(
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('elements', ParseIntPipe) elements: number,
+    @Query('user-id', ParseIntPipe) userId: number,
+  ) {
+    const [responseList, totalCount] =
+      await this.boardsService.getAllBoardsByUserId(
+        user,
+        userId,
+        page,
+        elements,
+      );
+
+    return ResultFactory.getPaginatedSuccessResult(
+      totalCount,
+      page,
+      elements,
+      responseList,
+    );
+  }
 }

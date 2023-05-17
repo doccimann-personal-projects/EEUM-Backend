@@ -18,7 +18,12 @@ import { JwtAuthGuard } from 'src/users/presentation/guards/jwt-auth.guard';
 import { JwtAuthResult } from 'src/users/presentation/decorators/jwt-auth.result';
 import { UserRoleExistsPipe } from 'src/users/presentation/pipes/user-role.exists.pipe';
 import { User } from '@prisma/client';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateCommentResponse } from 'src/comments/application/dto/response/create-comment.response';
 import { FailureResult } from '../../../common/response/failure-response.format';
 import { DeleteCommentResponse } from 'src/comments/application/dto/response/delete-comment.response';
@@ -36,6 +41,7 @@ export class CommentsController {
   @ApiOperation({
     summary: '댓글을 작성합니다.',
   })
+  @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
     description: '댓글 작성 성공 응답입니다.',
@@ -65,6 +71,7 @@ export class CommentsController {
   @ApiOperation({
     summary: '댓글을 수정합니다.',
   })
+  @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
     description: '댓글 수정 성공 응답입니다.',
@@ -92,6 +99,7 @@ export class CommentsController {
   @ApiOperation({
     summary: '댓글을 삭제합니다.',
   })
+  @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
     description: '댓글 삭제 성공 응답입니다.',
