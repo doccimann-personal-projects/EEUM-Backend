@@ -43,7 +43,7 @@ export class CommentDao implements CommentRepository {
     });
   }
 
-  deleteComments(boardId: number): Promise<count> {
+  async deleteCommentsByBoardId(boardId: number): Promise<count> {
     return this.prismaService.comment.updateMany({
       where: { boardId: boardId },
       data: {

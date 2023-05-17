@@ -1,6 +1,8 @@
 import { Board, BoardCategory } from '@prisma/client';
 import { PickType } from '@nestjs/swagger';
 import { CommonBoardResponse } from './common/common-board.response';
+import { ReadCommentResponse } from '../../../../comments/application/dto/response/read-comment.response';
+import { BoardWithCommentsEntity } from '../../../domain/entity/board-with-comments.entity';
 
 export class ReadBoardResponse extends PickType(CommonBoardResponse, [
   'id',
@@ -22,7 +24,7 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
     title: string,
     content: string,
     createdAt: Date,
-    commentList: Array<toIntCommentInfo>,
+    commentList: Array<ReadCommentResponse>,
   ) {
     super();
 
@@ -37,7 +39,7 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
     this.commentList = commentList;
   }
 
-  static fromEntity(board: commentBoard): ReadBoardResponse {
+  static fromEntity(board: BoardWithCommentsEntity): ReadBoardResponse {
     const {
       id,
       userId,
@@ -50,17 +52,8 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
       commentList,
     } = board;
 
-    const commentLists: Array<toIntCommentInfo> = commentList.reduce(
-      (map: Array<toIntCommentInfo>, value: commentInfo) => {
-        const obj = {
-          id: Number(value['id']),
-          content: value['content'],
-          createdAt: value['createdAt'],
-        };
-        map.push(obj);
-        return map;
-      },
-      [],
+    const commentResponseList = commentList?.map((comment) =>
+      ReadCommentResponse.fromEntity(comment),
     );
 
     return new ReadBoardResponse(
@@ -72,32 +65,7 @@ export class ReadBoardResponse extends PickType(CommonBoardResponse, [
       title,
       content,
       createdAt,
-      commentLists,
+      commentResponseList,
     );
   }
-}
-
-export interface commentBoard {
-  id: bigint;
-  userId: bigint;
-  authorName: string;
-  category: BoardCategory;
-  views: number;
-  title: string;
-  content: string;
-  createdAt: Date;
-  commentList: Array<commentInfo>;
-  isDeleted: boolean;
-}
-
-export interface toIntCommentInfo {
-  id: number;
-  content: string;
-  createdAt: Date;
-}
-
-export interface commentInfo {
-  id: bigint;
-  content: string;
-  createdAt: Date;
 }

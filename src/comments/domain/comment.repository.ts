@@ -14,5 +14,5 @@ export interface CommentRepository {
 
   deleteComment(commentId: number): Promise<Comment>;
 
-  deleteComments(boardId: number): Promise<count>;
+  deleteCommentsByBoardId(boardId: number): Promise<count>;
 }

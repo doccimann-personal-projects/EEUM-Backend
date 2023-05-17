@@ -29,6 +29,7 @@
     "@nestjs/swagger": "^6.3.0",
     "@prisma/client": "^4.13.0",
     "@ssut/nestjs-sqs": "^2.0.0",
+    "async-mutex": "^0.4.0",
     "aws-sdk": "^2.1376.0",
     "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",

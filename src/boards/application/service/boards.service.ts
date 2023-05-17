@@ -13,9 +13,12 @@ import { RequestNotValidException } from '../../../common/customExceptions/reque
 import { CommentsService } from 'src/comments/application/service/comments.service';
 import { UpdateBoardRequest } from '../dto/request/update-board.request';
 import { UpdateBoardResponse } from '../dto/response/update-board.response';
+import { Mutex } from 'async-mutex';
+import { BoardWithCommentsEntity } from '../../domain/entity/board-with-comments.entity';
 
 @Injectable()
 export class BoardsService {
+  private readonly mutex = new Mutex();
   constructor(
     @Inject('BoardRepository')
     private readonly boardRepository: BoardRepository,
@@ -39,6 +42,18 @@ export class BoardsService {
   async getDetailBoard(boardId: number): Promise<ReadBoardResponse | null> {
     return this.prismaService.$transaction(async () =>
       this.getDetailBoardTransaction(boardId),
+    );
+  }
+
+  // 나의 게시물 찾기
+  async getAllBoardsByUserId(
+    user: User,
+    userId: number,
+    page: number,
+    elements: number,
+  ): Promise<[Array<PaginatedBoardResponse>, number]> {
+    return this.prismaService.$transaction(async () =>
+      this.getAllBoardsByUserIdTransaction(user, userId, page, elements),
     );
   }
 
@@ -92,8 +107,57 @@ export class BoardsService {
   private async getDetailBoardTransaction(
     boardId: number,
   ): Promise<ReadBoardResponse | null> {
-    const foundBoard = await this.boardRepository.findAliveBoardById(boardId);
-    return foundBoard ? ReadBoardResponse.fromEntity(foundBoard) : null;
+    const foundBoard = await this.boardRepository.findDetailBoardById(boardId);
+
+    if (!foundBoard) {
+      return null;
+    }
+
+    const release = await this.mutex.acquire();
+
+    try {
+      const countUpdatedBoard = await this.boardRepository.updateViewCountById(
+        boardId,
+        1,
+      );
+      const updatedEntity: BoardWithCommentsEntity = {
+        commentList: foundBoard.commentList,
+        ...countUpdatedBoard,
+      };
+      return ReadBoardResponse.fromEntity(updatedEntity);
+    } finally {
+      release();
+    }
+  }
+
+  // 나의 게시물 모두를 페이지네이션 기반으로 조회하는 메소드
+  private async getAllBoardsByUserIdTransaction(
+    user: User,
+    userId: number,
+    page: number,
+    elements: number,
+  ): Promise<[Array<PaginatedBoardResponse>, number]> {
+    const validationResult = this.boardValidator.isReadableByUser(
+      user,
+      userId,
+      page,
+      elements,
+    );
+
+    if (!validationResult.success) {
+      throw validationResult.exception;
+    }
+
+    const [boards, count] = await Promise.all([
+      this.boardRepository.findAllBoardsByUserId(userId, page, elements),
+      this.boardRepository.getCountByUserId(userId),
+    ]);
+
+    const responseList = boards?.map((board) =>
+      PaginatedBoardResponse.fromEntity(board),
+    );
+
+    return [responseList, count];
   }
 
   private async updateBoardTransaction(
@@ -105,6 +169,20 @@ export class BoardsService {
       boardId,
     );
     return UpdateBoardResponse.fromEntity(updatedBoard);
+  }
+
+  // 댓글의 개수를 증가시키는 메소드
+  async increaseCommentCountTransaction(
+    boardId: number,
+  ): Promise<Board | null> {
+    return await this.boardRepository.updateCommentCountById(boardId, 1);
+  }
+
+  // 댓글의 개수를 감소시키는 메소드
+  async decreaseCommentCountTransaction(
+    boardId: number,
+  ): Promise<Board | null> {
+    return await this.boardRepository.updateCommentCountById(boardId, -1);
   }
 
   async deleteBoardTransaction(user: User, boardId: number) {
@@ -119,7 +197,7 @@ export class BoardsService {
     }
 
     const deleteBoard = await this.boardRepository.deleteById(boardId);
-    this.commentsService.deleteComments(boardId);
+    await this.commentsService.deleteComments(boardId);
     return DeleteBoardResponse.fromEntities(deleteBoard);
   }
 
@@ -172,10 +250,5 @@ export class BoardsService {
     );
 
     return [responseList, totalCount];
-  }
-
-  // 게시물의 commentCount를 증가/감소 시킴
-  async updateCommentCount(id: number, counts: number) {
-    return this.boardRepository.updateCommentCount(id, counts);
   }
 }
