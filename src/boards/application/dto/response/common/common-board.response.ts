@@ -54,21 +54,21 @@ export class CommonBoardResponse {
 
   @ApiProperty({
     description: '생성 일자입니다',
-    example: Date.now(),
+    example: new Date(),
     required: true,
   })
   createdAt: Date;
 
   @ApiProperty({
     description: '수정 일자입니다',
-    example: Date.now(),
+    example: new Date(),
     required: true,
   })
   updatedAt: Date;
 
   @ApiProperty({
     description: '삭제 일자입니다',
-    example: Date.now(),
+    example: new Date(),
     required: true,
   })
   deletedAt: Date;

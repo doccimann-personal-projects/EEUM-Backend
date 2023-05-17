@@ -100,6 +100,7 @@ export class BoardsController {
   @ApiOperation({
     summary: '게시글 수정 API 입니다',
   })
+  @ApiBearerAuth('accesskey')
   @ApiResponse({
     status: 200,
     description: '게시글 수정 성공 응답입니다',
@@ -114,12 +115,14 @@ export class BoardsController {
     description: '내부 서버 에러입니다',
     type: FailureResult,
   })
+  @UseGuards(JwtAuthGuard)
   @Patch('/:id')
   updateBoard(
+    @JwtAuthResult(UserRoleExistsPipe) user: User,
     @Param('id', ParseIntPipe) boardId: number,
     @Body() updateRequest: UpdateBoardRequest,
   ) {
-    return this.boardsService.updateBoard(updateRequest, boardId);
+    return this.boardsService.updateBoard(user, boardId, updateRequest);
   }
 
   @ApiOperation({

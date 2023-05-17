@@ -60,4 +60,25 @@ export class BoardValidator {
 
     return ValidationResult.getSuccessResult();
   }
+
+  // 게시물이 수정 가능한지 판단하는 메소드
+  async isUpdatable(user: User, boardId: number): Promise<ValidationResult> {
+    const foundBoard = await this.boardRepository.findById(boardId);
+
+    // 게시글이 존재하지 않는 경우
+    if (!foundBoard) {
+      return ValidationResult.getFailureResult(
+        new ResourceNotFoundException('게시글이 존재하지 않습니다'),
+      );
+    }
+
+    // 게시글의 주인과 요청하는 유저가 다른 경우
+    if (foundBoard.userId !== user.id) {
+      return ValidationResult.getFailureResult(
+        new NotAuthorizedException('권한이 없습니다'),
+      );
+    }
+
+    return ValidationResult.getSuccessResult();
+  }
 }

@@ -58,11 +58,12 @@ export class BoardsService {
   }
 
   async updateBoard(
-    updateRequest: UpdateBoardRequest,
+    user: User,
     boardId: number,
+    updateRequest: UpdateBoardRequest,
   ): Promise<any> {
     return this.prismaService.$transaction(async () =>
-      this.updateBoardTransaction(updateRequest, boardId),
+      this.updateBoardTransaction(user, boardId, updateRequest),
     );
   }
 
@@ -161,9 +162,19 @@ export class BoardsService {
   }
 
   private async updateBoardTransaction(
-    updateRequest: UpdateBoardRequest,
+    user: User,
     boardId: number,
+    updateRequest: UpdateBoardRequest,
   ): Promise<UpdateBoardResponse> {
+    const validationResult = await this.boardValidator.isUpdatable(
+      user,
+      boardId,
+    );
+
+    if (!validationResult.success) {
+      throw validationResult.exception;
+    }
+
     const updatedBoard = await this.boardRepository.updateBoardById(
       updateRequest,
       boardId,
