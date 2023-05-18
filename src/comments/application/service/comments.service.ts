@@ -28,7 +28,11 @@ export class CommentsService {
     user: User,
     boardId: number,
   ): Promise<CreateCommentResponse> {
-    const comment = createComment.toCommentEntity(user.id, BigInt(boardId));
+    const comment = createComment.toCommentEntity(
+      user.id,
+      user.nickname,
+      BigInt(boardId),
+    );
     const createdComment = await this.commentRepository.create(comment);
 
     const release = await this.mutex.acquire();

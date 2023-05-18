@@ -13,9 +13,14 @@ export class CreateCommentRequest {
   @MaxLength(150)
   content: string;
 
-  toCommentEntity(userId: bigint, boardId: bigint): Omit<Comment, 'id'> {
+  toCommentEntity(
+    userId: bigint,
+    authorName: string,
+    boardId: bigint,
+  ): Omit<Comment, 'id'> {
     return {
       userId: userId,
+      authorName: authorName,
       boardId: boardId,
       content: this.content,
       createdAt: new Date(),
