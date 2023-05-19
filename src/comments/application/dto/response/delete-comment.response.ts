@@ -23,27 +23,15 @@ export class DeleteCommentResponse {
   })
   isDeleted: boolean;
 
-  constructor(
-    id: number,
-    deletedAt: Date,
-    isDeleted: boolean,
-  ) {
+  constructor(id: number, deletedAt: Date, isDeleted: boolean) {
     this.id = id;
     this.deletedAt = deletedAt;
     this.isDeleted = isDeleted;
   }
 
   static fromEntity(comment: Comment): DeleteCommentResponse {
-    const {
-      id,
-      deletedAt,
-      isDeleted,
-    } = comment;
-    return new DeleteCommentResponse(
-      Number(id),
-      deletedAt,
-      isDeleted,
-    );
+    const { id, deletedAt, isDeleted } = comment;
+    return new DeleteCommentResponse(Number(id), deletedAt, isDeleted);
   }
 }
 
