@@ -32,9 +32,14 @@ export class CommentDao implements CommentRepository {
     });
   }
 
-  async deleteComment(commentId: number): Promise<Comment> {
+  async deleteComment(commentId: number, userId: bigint): Promise<Comment> {
     return this.prismaService.comment.update({
-      where: { id: BigInt(commentId) },
+      where: {
+        id_userId: {
+          id: BigInt(commentId),
+          userId: userId,
+        },
+      },
       data: {
         updatedAt: new Date(),
         deletedAt: new Date(),

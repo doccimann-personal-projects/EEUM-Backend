@@ -61,9 +61,11 @@ export class CommentsService {
   async deleteComment(
     boardId: number,
     commentId: number,
+    user: User,
   ): Promise<DeleteCommentResponse> {
     const deletedComment = await this.commentRepository.deleteComment(
       commentId,
+      user.id,
     );
 
     const release = await this.mutex.acquire();
