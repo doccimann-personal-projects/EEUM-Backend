@@ -1,5 +1,11 @@
 import { BoardCategory } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsOptional, IsString, Length } from "class-validator";
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateBoardRequest {

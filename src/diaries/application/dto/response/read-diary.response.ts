@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { DetailDiaryEntity } from '../../../domain/entity/detail-diary.entity';
 import { DiaryEmotionResponse } from './types/diary-emotion.response';
 import { DiaryEmotion } from '@prisma/client';
+import { RecommendedFoodResponse } from './types/recommended-food.response';
 
 export class ReadDiaryResponse {
   @ApiProperty({
@@ -34,10 +35,10 @@ export class ReadDiaryResponse {
 
   @ApiProperty({
     description: '추천 음식의 리스트입니다',
-    example: ['떡볶이'],
+    example: [{ name: '떡볶이', imageUrl: 'http://tteokbokki.com' }],
     required: true,
   })
-  recommendedFoodList: Array<string>;
+  recommendedFoodList: Array<RecommendedFoodResponse>;
 
   @ApiProperty({
     description: '일기에 담긴 주요 감정입니다',
@@ -81,7 +82,7 @@ export class ReadDiaryResponse {
     content: string,
     emotion: string | null,
     emotionScores: DiaryEmotionResponse | null,
-    recommendedFoodList: Array<string>,
+    recommendedFoodList: Array<RecommendedFoodResponse>,
     weather: string,
     publishedDate: string,
     createdAt: Date,
@@ -119,7 +120,9 @@ export class ReadDiaryResponse {
       ? DiaryEmotionResponse.fromPartialEntity(diaryEmotionList[0])
       : null;
 
-    const foodList = recommendedFoodList?.map((food) => food.foodName);
+    const foodList = recommendedFoodList?.map((food) =>
+      RecommendedFoodResponse.fromEntity(food),
+    );
 
     return new ReadDiaryResponse(
       Number(id),
@@ -137,12 +140,12 @@ export class ReadDiaryResponse {
 
   // 가장 수치가 높은 감정을 추출하는 메소드
   private static getHighestEmotion(emotion: Partial<DiaryEmotion>): string {
-    const emotionsScoreMap = {
-      worry: emotion.worryScore,
-      angry: emotion.angryScore,
-      happy: emotion.happyScore,
-      excited: emotion.excitedScore,
-      sad: emotion.sadScore,
+    const emotionsScoreMap: { [key: string]: number } = {
+      worry: Number(emotion.worryScore),
+      angry: Number(emotion.angryScore),
+      happy: Number(emotion.happyScore),
+      excited: Number(emotion.excitedScore),
+      sad: Number(emotion.sadScore),
     };
 
     const emotionNameMap = {
@@ -159,6 +162,7 @@ export class ReadDiaryResponse {
           ? prev
           : current;
       },
+      'worry',
     );
 
     return emotionNameMap[highestEmotion];

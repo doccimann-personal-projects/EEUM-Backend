@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { DetailDiaryEntity } from '../../../domain/entity/detail-diary.entity';
 import { DiaryEmotion } from '@prisma/client';
 import { getDateResponse } from '../../../../common/utils/date-utils';
+import { RecommendedFoodResponse } from './types/recommended-food.response';
 
 export class PaginatedDiaryResponse {
   @ApiProperty({
@@ -33,18 +34,18 @@ export class PaginatedDiaryResponse {
   emotion: string;
 
   @ApiProperty({
-    description: '추천 음식 이름입니다',
-    example: '떡볶이',
+    description: '추천 음식의 리스트입니다',
+    example: { name: '떡볶이', imageUrl: 'http://tteokbokki.com' },
     required: true,
   })
-  recommendedFood: string;
+  recommendedFood: RecommendedFoodResponse;
 
   constructor(
     id: number,
     title: string,
     publishedDate: string,
     emotion: string,
-    recommendedFood: string,
+    recommendedFood: RecommendedFoodResponse,
   ) {
     this.id = id;
     this.title = title;
@@ -60,8 +61,8 @@ export class PaginatedDiaryResponse {
       detailDiary;
 
     // 음식 이름 추출
-    const food = recommendedFoodList[0]
-      ? recommendedFoodList[0].foodName
+    const foodResponse = recommendedFoodList[0]
+      ? RecommendedFoodResponse.fromEntity(recommendedFoodList[0])
       : null;
 
     // 감정 추출
@@ -74,7 +75,7 @@ export class PaginatedDiaryResponse {
       title,
       getDateResponse(publishedDate),
       emotionName,
-      food,
+      foodResponse,
     );
   }
 

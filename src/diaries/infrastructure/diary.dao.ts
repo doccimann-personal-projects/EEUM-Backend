@@ -38,6 +38,7 @@ export class DiaryDao implements DiaryRepository {
         recommendedFoodList: {
           select: {
             foodName: true,
+            imageUrl: true,
           },
         },
       },
@@ -72,6 +73,7 @@ export class DiaryDao implements DiaryRepository {
         recommendedFoodList: {
           select: {
             foodName: true,
+            imageUrl: true,
           },
         },
         diaryEmotionList: {
