@@ -120,7 +120,9 @@ export class CommentsController {
   async deleteComment(
     @Param('commentId', ParseIntPipe) commentId: number,
     @Param('boardId', ParseIntPipe) boardId: number,
+    @JwtAuthResult(UserRoleExistsPipe)
+    user: User,
   ) {
-    return await this.commentsService.deleteComment(boardId, commentId);
+    return await this.commentsService.deleteComment(boardId, commentId, user);
   }
 }

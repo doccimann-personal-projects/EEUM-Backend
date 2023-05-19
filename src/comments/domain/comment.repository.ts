@@ -12,7 +12,7 @@ export interface CommentRepository {
     commentId: number,
   ): Promise<Comment>;
 
-  deleteComment(commentId: number): Promise<Comment>;
+  deleteComment(commentId: number, userId: bigint): Promise<Comment>;
 
   deleteCommentsByBoardId(boardId: number): Promise<count>;
 }
