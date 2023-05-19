@@ -34,11 +34,11 @@ export class ReadDiaryResponse {
   content: string;
 
   @ApiProperty({
-    description: '추천 음식의 리스트입니다',
-    example: [{ name: '떡볶이', imageUrl: 'http://tteokbokki.com' }],
+    description: '추천된 음식입니다',
+    example: { name: '떡볶이', imageUrl: 'http://tteokbokki.com' },
     required: true,
   })
-  recommendedFoodList: Array<RecommendedFoodResponse>;
+  recommendedFood: RecommendedFoodResponse | null;
 
   @ApiProperty({
     description: '일기에 담긴 주요 감정입니다',
@@ -82,7 +82,7 @@ export class ReadDiaryResponse {
     content: string,
     emotion: string | null,
     emotionScores: DiaryEmotionResponse | null,
-    recommendedFoodList: Array<RecommendedFoodResponse>,
+    recommendedFood: RecommendedFoodResponse | null,
     weather: string,
     publishedDate: string,
     createdAt: Date,
@@ -93,7 +93,7 @@ export class ReadDiaryResponse {
     this.content = content;
     this.emotion = emotion;
     this.emotionScores = emotionScores;
-    this.recommendedFoodList = recommendedFoodList;
+    this.recommendedFood = recommendedFood;
     this.weather = weather;
     this.publishedDate = publishedDate;
     this.createdAt = createdAt;
@@ -120,9 +120,9 @@ export class ReadDiaryResponse {
       ? DiaryEmotionResponse.fromPartialEntity(diaryEmotionList[0])
       : null;
 
-    const foodList = recommendedFoodList?.map((food) =>
-      RecommendedFoodResponse.fromEntity(food),
-    );
+    const recommendedFood = recommendedFoodList[0]
+      ? RecommendedFoodResponse.fromEntity(recommendedFoodList[0])
+      : null;
 
     return new ReadDiaryResponse(
       Number(id),
@@ -131,7 +131,7 @@ export class ReadDiaryResponse {
       content,
       highestEmotion,
       emotionScores,
-      foodList,
+      recommendedFood,
       weather,
       publishedDate.toISOString().substring(0, 10),
       createdAt,

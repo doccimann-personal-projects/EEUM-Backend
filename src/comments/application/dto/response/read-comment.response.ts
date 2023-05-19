@@ -17,6 +17,13 @@ export class ReadCommentResponse {
   content: string;
 
   @ApiProperty({
+    description: '댓글의 작성자 식별자 값입니다',
+    example: 3,
+    required: true,
+  })
+  userId: number;
+
+  @ApiProperty({
     description: '댓글 작성자입니다.',
     example: '김갑수',
     required: true,
@@ -33,18 +40,26 @@ export class ReadCommentResponse {
   constructor(
     id: number,
     content: string,
+    userId: number,
     authorName: string,
     createdAt: Date,
   ) {
     this.id = id;
     this.content = content;
+    this.userId = userId;
     this.authorName = authorName;
     this.createdAt = createdAt;
   }
 
   static fromEntity(comment: Comment): ReadCommentResponse {
-    const { id, content, authorName, createdAt } = comment;
+    const { id, content, userId, authorName, createdAt } = comment;
 
-    return new ReadCommentResponse(Number(id), content, authorName, createdAt);
+    return new ReadCommentResponse(
+      Number(id),
+      content,
+      Number(userId),
+      authorName,
+      createdAt,
+    );
   }
 }

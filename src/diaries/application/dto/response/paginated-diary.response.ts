@@ -38,14 +38,14 @@ export class PaginatedDiaryResponse {
     example: { name: '떡볶이', imageUrl: 'http://tteokbokki.com' },
     required: true,
   })
-  recommendedFood: RecommendedFoodResponse;
+  recommendedFood: RecommendedFoodResponse | null;
 
   constructor(
     id: number,
     title: string,
     publishedDate: string,
     emotion: string,
-    recommendedFood: RecommendedFoodResponse,
+    recommendedFood: RecommendedFoodResponse | null,
   ) {
     this.id = id;
     this.title = title;
